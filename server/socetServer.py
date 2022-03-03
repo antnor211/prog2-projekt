@@ -1,19 +1,4 @@
 import socket
-import json
-import argparse
-
-def handleArgs():
-    parser = argparse.ArgumentParser(description='Programmering 2 slutprojekt')
-    parser.add_argument('-p', metavar='Port', type=int,
-                    help='port to host project')
-
-    args = parser.parse_args()
-    if not args.p:
-        parser.print_help()
-        exit()
-    return {
-        'port': args.p
-    }
 
 class Server():
     def __init__(self, host, port):
