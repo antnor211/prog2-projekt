@@ -3,9 +3,9 @@ import json
 import argparse
 
 def handleArgs():
-    parser = argparse.ArgumentParser(description='Berzender server')
+    parser = argparse.ArgumentParser(description='Programmering 2 slutprojekt')
     parser.add_argument('-p', metavar='Port', type=int,
-                    help='Port to host Berzender server')
+                    help='port to host project')
 
     args = parser.parse_args()
     if not args.p:
@@ -21,12 +21,21 @@ class Server():
         self._port = port
 
     def __enter__(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind((self._host, self._port))
-        sock.listen(10)
-        self._sock = sock
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind((self._host, self._port))
         print('[*] Server running on {}'.format(self._port))
+        s.listen(10)
+        connector, address = s.accept()
+        with connector:
+            print(f"Connected to {address}")
+            while True:
+                data = connector.recv(1024)
+                if not data:
+                    break
+                connector.sendall(data)
+        self._sock = s
+
         return self._sock
 
     def __exit__(self, *exc_info):
@@ -37,6 +46,5 @@ class Server():
 
 
 if __name__ == "__main__":
-    
     server = Server("localhost", 8000)
     server.__enter__()
