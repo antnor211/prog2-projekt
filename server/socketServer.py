@@ -1,9 +1,16 @@
 import socket
+import sys
+import os
 
+<<<<<<< HEAD:server/socetServer.py
 class Server:
+=======
+from utils.socketParent import SocketParent
+
+class SocketServer(SocketParent):
+>>>>>>> 7fe4743bd6d476bfd7cd48ae8b146ecfca694680:server/socketServer.py
     def __init__(self, host, port):
-        self._host = host
-        self._port = port
+        SocketParent.__init__(self, host, port)
 
     def __enter__(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -24,12 +31,7 @@ class Server:
         return self._sock
 
     def __exit__(self, *exc_info):
-        if exc_info[0]:
-            import traceback
-            traceback.print_exception(*exc_info)
-        self._sock.close()
+        SocketParent.__exit__(self, exc_info)
 
 
-if __name__ == "__main__":
-    server = Server("localhost", 8000)
-    server.__enter__()
+
