@@ -5,7 +5,7 @@ from tokenize import String
 sys.path.append(os.getcwd())
 from utils.argParser import argParser
 
-class clientArgParser(argParser):
+class ClientArgParser(argParser):
     def __init__(self):
         argParser.__init__(self)
         self.parser.add_argument('-p', metavar='Port', type=int,
