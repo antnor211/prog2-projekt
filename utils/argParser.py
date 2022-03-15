@@ -1,6 +1,6 @@
 import argparse
 
-class argParser:
+class ArgParser:
     def __init__(self):
        self.parser = argparse.ArgumentParser(description='Lorum Ipsum')
     
@@ -8,5 +8,4 @@ class argParser:
         self.inputArguments = self.parser.parse_args()
 
     def getArguments(self):
-        
         return self.inputArguments
