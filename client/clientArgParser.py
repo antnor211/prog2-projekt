@@ -1,9 +1,6 @@
 from utils.argParser import ArgParser
 
-<<<<<<< HEAD
 
-=======
->>>>>>> c3e1aece1308860df85d2b8fb78fdc10fd79177a
 class ClientArgParser(ArgParser):
     def __init__(self):
         ArgParser.__init__(self)

@@ -14,6 +14,7 @@ sqlite_query = ""
 
 for line in sql_data:
     new_line = line.replace("\n", "")
+    print(new_line)
     if new_line == "":
         continue
     sqlite_query += new_line
