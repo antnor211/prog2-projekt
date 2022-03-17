@@ -1,9 +1,5 @@
 import sqlite3
 
-con = sqlite3.connect("database.db")
-
-cur = con.cursor()
-
 sql_file = open("migrate.sql", "r")
 sql_data = sql_file.readlines()
 sql_file.close()
@@ -14,18 +10,19 @@ sqlite_query = ""
 
 for line in sql_data:
     new_line = line.replace("\n", "")
-    print(new_line)
+
     if new_line == "":
         continue
     sqlite_query += new_line
     if sqlite_query.endswith(";"):
-        print(sqlite_query)
-        cur.execute(sqlite_query)
+        exec_sql = sqlite_query.replace("    ", "")
+        print(exec_sql)
+        con = sqlite3.connect("database.db")
+        cur = con.cursor()
+        cur.execute(exec_sql)
+        con.commit()
+        con.close()
         sqlite_query = ""
-        print("end")
+        print("END")
     else:
         continue
-
-
-con.commit()
-con.close()
