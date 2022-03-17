@@ -1,5 +1,8 @@
 from utils.argParser import ArgParser
 
+sys.path.append(os.getcwd())
+from utils.argParser import argParser
+
 class ClientArgParser(ArgParser):
     def __init__(self):
         ArgParser.__init__(self)
