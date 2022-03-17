@@ -2,13 +2,9 @@ import socket
 import sys
 import os
 
-<<<<<<< HEAD:server/socetServer.py
-class Server:
-=======
 from utils.socketParent import SocketParent
 
 class SocketServer(SocketParent):
->>>>>>> 7fe4743bd6d476bfd7cd48ae8b146ecfca694680:server/socketServer.py
     def __init__(self, host, port):
         SocketParent.__init__(self, host, port)
 
