@@ -1,6 +1,5 @@
 from utils.argParser import ArgParser
 
-from utils.argParser import argParser
 
 class ClientArgParser(ArgParser):
     def __init__(self):
