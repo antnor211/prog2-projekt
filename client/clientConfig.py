@@ -3,7 +3,7 @@ import re
 class ClientConfig:
     def __init__(self):
         self._config = {
-            'usernane': '',
+            'username': '',
             'password': ''
         }
 
@@ -24,4 +24,8 @@ class ClientConfig:
             pass
 
     def readAttribute(self, attribute):
-        return self._config[attribute]
+        print(self._config)
+        try:
+            return self._config[attribute]
+        except: 
+            pass

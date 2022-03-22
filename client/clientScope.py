@@ -111,6 +111,7 @@ class ClientScope():
             },
             'session': ''
         }
+        
         response = self._socket.send(p)
         if response['code'] == '200':
             self._session = response['session']
