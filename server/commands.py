@@ -8,25 +8,25 @@ class Commands():
         if not command['body']['username'] or not command['body']['password']:
             return({'code': '400', 'message': 'Missing Parameters'})
 
-        userId = self._db.handleQuery(
-            (command['body']['username'],), 'getUserbyUsername')
-        if len(userId) == 0:
-            return({
-                'code': '401',
-                'message': 'Username or password is incorrect'
-            })
-        password = self._db.handleQuery((userId[0][0],), 'getPassword')
-        if password[0][0] != command['body']['password']:
-            return({
-                'code': '401',
-                'message': 'Username or password is incorrect'
-            })
-        newSess = self._db.handleUpdate(
-            (str(uuid.uuid4()), userId[0][0]), 'session')
+        # userId = self._db.handleQuery(
+        #     (command['body']['username'],), 'getUserbyUsername')
+        # if len(userId) == 0:
+        #     return({
+        #         'code': '401',
+        #         'message': 'Username or password is incorrect'
+        #     })
+        # password = self._db.handleQuery((userId[0][0],), 'getPassword')
+        # if password[0][0] != command['body']['password']:
+        #     return({
+        #         'code': '401',
+        #         'message': 'Username or password is incorrect'
+        #     })
+        # newSess = self._db.handleUpdate(
+        #     (str(uuid.uuid4()), userId[0][0]), 'session')
 
         return {
             'code': '200',
-            'session': newSess[0],
+            'session': str(uuid.uuid4()), #newSess[0],
         }
 
     def createUser(self, command):

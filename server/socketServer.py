@@ -11,24 +11,17 @@ class SocketServer(SocketParent):
 
     def __enter__(self):
         
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind((self._host, self._port))
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind((self._host, self._port))
+        sock.listen(10)
+        self.sock = sock
         print('[*] Server running on {}'.format(self._port))
-        s.listen(10)
-        self.connector, self.address = s.accept()
-
-        with self.connector:
-            print(f"Connected to {self.address}")
-            while True:
-                self.data = self.connector.recv(1024)
-                if not self.data:
-                    break
-                self.connector.sendall(self.data)
-            self.data = None
-        self.sock = s
+        return self.sock
 
         return self
+    def clearData(self):
+        self.data = None
 
     def __exit__(self, *exc_info):
         SocketParent.__exit__(self, exc_info)
