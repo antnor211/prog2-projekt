@@ -24,7 +24,6 @@ class ClientConfig:
             pass
 
     def readAttribute(self, attribute):
-        print(self._config)
         try:
             return self._config[attribute]
         except: 

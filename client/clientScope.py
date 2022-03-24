@@ -75,6 +75,7 @@ class ClientScope():
             'session': ''
         }
         response = self._socket.send(p)
+        print('response', response)
         if response['code'] == '200':
             self._session = response['session']
             self.currentFrame = self.menu
@@ -111,7 +112,7 @@ class ClientScope():
             },
             'session': ''
         }
-        
+
         response = self._socket.send(p)
         if response['code'] == '200':
             self._session = response['session']
@@ -119,16 +120,13 @@ class ClientScope():
 
     def menu(self):
         self._page('MENU')
-        print('[0] Send a Message')
-        print('[1] Inbox')
-        print('[2] Settings')
+        print('[0] Play Blackjack')
+        print('[1] Settings')
         choice = self._optionInput('Choose Option ', 0, 2)
 
         if choice == 0:
-            self.currentFrame = self.sendMessage
+            self.currentFrame = self.blackjack
         elif choice == 1:
-            self.currentFrame = self.inbox
-        elif choice == 2:
             self.currentFrame = self.settings
 
     def settings(self):
@@ -141,6 +139,8 @@ class ClientScope():
             self.currentFrame = self.changePassword
         elif choice == 1:
             self.currentFrame = self.deleteUser
+    def blackjack(self): 
+        self._page('BlackJack')
 
     def __enter__(self):
         self.currentFrame = self.loginMethod
