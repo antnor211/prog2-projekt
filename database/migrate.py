@@ -12,13 +12,13 @@ class Migrate(Action):
         self._sql_data = None
         self._sql_query = ""
     
-    def _open_sqlfile(self): 
+    def _open_sql_file(self): 
         self._sql_file = open(self._path_sql_file, "r")
         self._sql_data = self._sql_file.readlines()
         self._sql_file.close()
     
     def migrate_data(self):
-        self._open_sqlfile()
+        self._open_sql_file()
         for line in self._sql_data:
             new_line = line.replace("\n", "")
             if new_line == "":

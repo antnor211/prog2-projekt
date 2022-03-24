@@ -7,7 +7,6 @@ create table users(
     id integer primary key autoincrement not null,
     firstname text not null,
     lastname text not null,
-    email text not null,
     username text not null,
     password text not null
 );
