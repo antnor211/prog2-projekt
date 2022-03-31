@@ -12,6 +12,8 @@ from Crypto.Cipher import PKCS1_OAEP
 import base64
 import argparse
 
+from client.blackjack.blackjack import BlackJack
+
 class ClientScope():
     def __init__(self, sock, username, password):
         self.currentFrame = None
@@ -37,6 +39,14 @@ class ClientScope():
         os.system('clear')
         print(asciiArt.smallAppLogo + asciiArt.smallAppTitle)
         print(termcolor.colored('-'*10 + title + '-'*10, 'blue'))
+        print('\n'*1)
+    def _blackjackPage(self, playerCards, dealerCards, ):
+        os.system('clear')
+        print(dealerCards)
+        print('\n'*3)
+        print(termcolor.colored('-'*10 + ' BLACKJACK ' + '-'*10, 'blue'))
+        print('\n'*5)
+        print(playerCards)
         print('\n'*1)
 
     def loginMethod(self):
@@ -122,7 +132,7 @@ class ClientScope():
         self._page('MENU')
         print('[0] Play Blackjack')
         print('[1] Settings')
-        choice = self._optionInput('Choose Option ', 0, 2)
+        choice = self._optionInput('Choose Option ', 0, 1)
 
         if choice == 0:
             self.currentFrame = self.blackjack
@@ -139,8 +149,20 @@ class ClientScope():
             self.currentFrame = self.changePassword
         elif choice == 1:
             self.currentFrame = self.deleteUser
+    
     def blackjack(self): 
-        self._page('BlackJack')
+        gameInstance = BlackJack()
+        gameInstance.addDealerCard({'suit': 'spades', 'value': 'K'})
+        gameInstance.addDealerCard({'suit': 'hearts', 'value': 'K'})
+        gameInstance.addPlayerCards({'suit': 'hearts', 'value': 'K'})
+        gameInstance.addPlayerCards({'suit': 'hearts', 'value': '10'})
+
+        while True:
+            self._blackjackPage(gameInstance.getFormattedPlayerCards(), gameInstance.getForamttedDealerCards())
+            dealerCards = gameInstance.getDealerCards()
+            print('[0] Hit')
+            print('[1] Stand')
+            choice = self._optionInput('Choose Option ', 0, 1)
 
     def __enter__(self):
         self.currentFrame = self.loginMethod
