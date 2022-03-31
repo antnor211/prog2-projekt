@@ -56,6 +56,7 @@ class BlackJack:
     def addDealerCard(self, card):
         newCard = Card(card['suit'], card['value']).getCard()
         self._dealerCards.append(newCard)
+
     def getFormattedPlayerCards(self):
         cardsString = ''
         for line in range(0, 7):
