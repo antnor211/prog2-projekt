@@ -157,9 +157,17 @@ class ClientScope():
         gameInstance.addPlayerCards({'suit': 'hearts', 'value': 'K'})
         gameInstance.addPlayerCards({'suit': 'hearts', 'value': '10'})
 
+        #start instance
+        p = {
+            'head': 'createGame',
+            'body': {
+            },
+            'session': self._session
+        }
+
+        response = self._socket.send(p)
         while True:
             self._blackjackPage(gameInstance.getFormattedPlayerCards(), gameInstance.getForamttedDealerCards())
-            dealerCards = gameInstance.getDealerCards()
             print('[0] Hit')
             print('[1] Stand')
             choice = self._optionInput('Choose Option ', 0, 1)
