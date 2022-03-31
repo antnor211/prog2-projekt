@@ -1,9 +1,5 @@
 .idea
 database/database.db
 */__pycache__
-<<<<<<< HEAD
 *.pem
 */database.db
-=======
-*.pem
->>>>>>> cb62a8ec9ff4494367bc6512949d170c99570466
