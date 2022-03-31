@@ -11,7 +11,8 @@ from commands import Commands
 
 if __name__ == "__main__":
     with SocketServer("localhost", 8000) as ss:
-        comamnds = Commands(None)
+        db = open("../database/database.db")
+        comamnds = Commands(db)
         while True:
             connector, address = ss.accept()
             data = connector.recv(1024)
