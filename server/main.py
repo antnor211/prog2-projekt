@@ -8,22 +8,23 @@ sys.path.append(os.getcwd())
 
 from socketServer import SocketServer
 from commands import Commands
+from database.Database import Database
 
 if __name__ == "__main__":
     with SocketServer("localhost", 8000) as ss:
-        db = open("../database/database.db")
-        comamnds = Commands(db)
-        while True:
-            connector, address = ss.accept()
-            data = connector.recv(1024)
-            try:
-                payload = json.loads(data.decode('utf-8'))
-                print('payload', payload)
-                response = comamnds.handleCommand(payload)
-                print('response', response)
-                connector.send(json.dumps(response).encode())
-            except Exception as e:
-                print('exception', e)
-                pass
-            finally:
-                connector.close()
+        with Database as db:
+            comamnds = Commands(db)
+            while True:
+                connector, address = ss.accept()
+                data = connector.recv(1024)
+                try:
+                    payload = json.loads(data.decode('utf-8'))
+                    print('payload', payload)
+                    response = comamnds.handleCommand(payload)
+                    print('response', response)
+                    connector.send(json.dumps(response).encode())
+                except Exception as e:
+                    print('exception', e)
+                    pass
+                finally:
+                    connector.close()
