@@ -1,13 +1,13 @@
-from Action import Action
+from server.database.Action import Action
 
 import termcolor
 import os
 
 
 class Migrate(Action):
-    def __init__(self, path_database, path_sql_file):
+    def __init__(self, path_database):
         Action.__init__(self, path_database)
-        self._path_sql_file = path_sql_file
+        self._path_sql_file = "/server/database/migrate.sql"
         self._sql_file = None
         self._sql_data = None
         self._sql_query = ""
@@ -48,8 +48,3 @@ class Migrate(Action):
 
         """
         print(termcolor.colored(reset_message, "green"))
-
-
-
-migrate = Migrate("database.db", "migrate.sql")
-migrate.migrate_data()
