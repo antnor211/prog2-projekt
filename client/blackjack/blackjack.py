@@ -49,7 +49,7 @@ class BlackJack:
     def getDealerCards(self):
         return self._dealerCards
     
-    def addPlayerCards(self, card):
+    def addPlayerCard(self, card):
         newCard = Card(card['suit'], card['value']).getCard()
         self._playerCards.append(newCard)
     
@@ -72,7 +72,8 @@ class BlackJack:
                 cardsString += card['cardColoredChopped'][line]
             cardsString += '\n'
         return cardsString
-
+    def updateGameSession(self, session):
+        self.gameSession = session
 #test
 if __name__ == "__main__":
     b = BlackJack()

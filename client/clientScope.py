@@ -1,3 +1,4 @@
+from ssl import ALERT_DESCRIPTION_RECORD_OVERFLOW
 import asciiArt
 import time
 import datetime
@@ -152,25 +153,52 @@ class ClientScope():
     
     def blackjack(self): 
         gameInstance = BlackJack()
-        gameInstance.addDealerCard({'suit': 'spades', 'value': 'K'})
-        gameInstance.addDealerCard({'suit': 'hearts', 'value': 'K'})
-        gameInstance.addPlayerCards({'suit': 'hearts', 'value': 'K'})
-        gameInstance.addPlayerCards({'suit': 'hearts', 'value': '10'})
+
+        # gameInstance.addPlayerCards({'suit': 'hearts', 'value': 'K'})
+        # gameInstance.addPlayerCards({'suit': 'hearts', 'value': '10'})
 
         #start instance
         p = {
-            'head': 'createGame',
+            'head': 'blackjackCreateGame',
             'body': {
             },
             'session': self._session
         }
 
-        response = self._socket.send(p)
+        createResponse = self._socket.send(p)
+        
+        if createResponse['code'] == '200':
+            gameInstance.updateGameSession(createResponse['gameSession'])
+            for card in createResponse['dealerCards']:
+                gameInstance.addDealerCard({'suit': card['suit'], 'value': card['value']})
+            for card in createResponse['playerCards']:
+                gameInstance.addPlayerCard({'suit': card['suit'], 'value': card['value']})
+        else: 
+            self.currentFrame = self.menu
+
+        actionResponse
         while True:
+            if actionResponse:
+                if actionResponse['code'] == '200':
+                    for card in createResponse['playerCards']:
+                        gameInstance.addPlayerCard({'suit': card['suit'], 'value': card['value']})
+ 
             self._blackjackPage(gameInstance.getFormattedPlayerCards(), gameInstance.getForamttedDealerCards())
             print('[0] Hit')
             print('[1] Stand')
+            
             choice = self._optionInput('Choose Option ', 0, 1)
+            if choice != 0 or choice != 1:
+                continue
+            p = {
+                'head': 'blackjackHit' if choice == 0 else 'blackjackStand',
+                'body': {
+                    'gameSession': gameInstance.gameSession 
+                },
+                'session': self._session
+            }
+            actionResponse = self._socket.send(p)
+
 
     def __enter__(self):
         self.currentFrame = self.loginMethod

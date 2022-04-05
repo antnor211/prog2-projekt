@@ -1,4 +1,4 @@
-from Action import Action
+from server.database.Action import Action
 
 import termcolor
 import os

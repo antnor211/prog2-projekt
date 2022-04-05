@@ -1,6 +1,6 @@
 
-from migrate import Migrate
-from query import Query
+from server.database.migrate import Migrate
+from server.database.query import Query
 
 class Database:
     def __init__(self):
