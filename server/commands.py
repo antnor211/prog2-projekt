@@ -1,9 +1,20 @@
 from operator import imod
 import uuid
+import database.queryStrings as q_strings
 
 class Commands():
     def __init__(self, database):
         self._db = database
+
+    def create_user(self, command):
+        return q_strings.mutate["create_user"].format(
+            command["body"]["firstname"], 
+            command["body"]["lastname"], 
+            command["body"]["username"], 
+            command["body"]["password"]
+        )
+
+    
 
     def login(self, command):
         if not command['body']['username'] or not command['body']['password']:
