@@ -93,6 +93,23 @@ class Commands():
             'code': '200',
         }
 
+    def blackjackCreateGame(self, command):
+        if not command['session']:
+            return({'code': '400', 'message': 'Missing Parameters'})
+        userId = self._db.handleQuery(
+            (command['session'],), 'getUserBySession')
+        mResponse = self._db.handleMutation(
+            (userId, str(uuid.uuid4()), ), 'blackjackCreateGame')
+
+    def blackjackHit(self, command):
+        if not command['body']['gameSession'] and not command['session']:
+            return({'code': '400', 'message': 'Missing Parameters'})
+        sessionId = command['body']['gameSession']
+
+    def blackjackStand(self, command):
+        if not command['body']['gameSession'] and not command['session']:
+            return({'code': '400', 'message': 'Missing Parameters'}) 
+        sessionId = command['body']['gameSession']
 
     def logout(self, command):
         if not command['body']['username']:

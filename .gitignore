@@ -1,5 +1,10 @@
 .idea
+<<<<<<< HEAD
+*.db
+*__pycache__/
+=======
 */database.db
 *__pycache__
+>>>>>>> 103d147ccb615a2bb891f48b644a2669ac88774f
 *.pem
 */database.db
