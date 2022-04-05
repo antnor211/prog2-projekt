@@ -7,12 +7,15 @@ class Commands():
         self._db = database
 
     def create_user(self, command):
-        return q_strings.mutate["create_user"].format(
-            command["body"]["firstname"], 
+        info_dict = {
+            "command": "create_user",
+            "params": 
+            [command["body"]["firstname"], 
             command["body"]["lastname"], 
             command["body"]["username"], 
-            command["body"]["password"]
-        )
+            command["body"]["password"]]
+        }
+        return info_dict
 
     
 
