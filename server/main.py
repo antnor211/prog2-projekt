@@ -12,7 +12,7 @@ from database.Database import Database
 
 if __name__ == "__main__":
     with SocketServer("localhost", 8000) as ss:
-        with Database as db:
+        with Database()as db:
             comamnds = Commands(db)
             while True:
                 connector, address = ss.accept()
