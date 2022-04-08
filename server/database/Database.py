@@ -17,7 +17,7 @@ class Database:
         migration.migrate_data()
 
     def handle_mutation(self, info_dict):
-        str_to_exec = q_strings[info_dict["command"]].format(
+        str_to_exec = q_strings.mutate[info_dict["command"]].format(
             info_dict["params"][0],
             info_dict["params"][1],
             info_dict["params"][2],
