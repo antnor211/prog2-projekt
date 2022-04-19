@@ -18,3 +18,5 @@ class Query:
         print(query)
         self._cur.execute(query)
         self._con.commit()
+
+    

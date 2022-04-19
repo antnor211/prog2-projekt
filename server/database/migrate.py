@@ -7,7 +7,7 @@ import os
 class Migrate(Action):
     def __init__(self, path_database):
         Action.__init__(self, path_database)
-        self._path_sql_file = "/server/database/migrate.sql"
+        self._path_sql_file = "server/database/migrate.sql"
         self._sql_file = None
         self._sql_data = None
         self._sql_query = ""
@@ -32,8 +32,7 @@ class Migrate(Action):
                 print("END of quary line")
             else:
                 continue
-        self._con.commit()
-        self._con.close()
+        self.commit_crud()
 
         os.system("cls" if os.name == "nt" else "clear")
         reset_message = """
@@ -47,4 +46,4 @@ class Migrate(Action):
                                                                                                                                                        
 
         """
-        print(termcolor.colored(reset_message, "green"))
+        print(termcolor.colored(reset_message, "red"))
