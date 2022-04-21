@@ -176,7 +176,7 @@ class ClientScope():
         else: 
             self.currentFrame = self.menu
 
-        actionResponse
+        actionResponse = None
         while True:
             if actionResponse:
                 if actionResponse['code'] == '200':
