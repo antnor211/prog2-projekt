@@ -1,4 +1,4 @@
-drop table if exists transactions;
+drop table if exists games;
 drop table if exists users;
 
 PRAGMA foreign_keys = on;
@@ -8,14 +8,14 @@ create table users(
     firstname text not null,
     lastname text not null,
     username text not null,
+    balance float default null,
     password text not null
 );
 
 
-create table transactions(
-    id integer primary key autoincrement not null,
-    userId integer not null,
-    time datetime not null default CURRENT_TIMESTAMP,
-    value text not null,
-    foreign key (userId) references users(id)
+create table games(
+    id integer primary key not null,
+    player integer not null,
+    playerCards text not null, 
+    dealerCards text not null
 );
