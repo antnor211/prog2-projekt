@@ -14,7 +14,7 @@ from server.database.migrate import Migrate
 
 if __name__ == "__main__":
     with SocketServer("localhost", 8000) as ss:
-        with Database("/database/Database.db")as db:
+        with Database("database/database.db")as db:
             comamnds = Commands(db)
             while True:
                 connector, address = ss.accept()
