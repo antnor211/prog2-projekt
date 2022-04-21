@@ -1,10 +1,12 @@
 from operator import imod
 import uuid
 import database.queryStrings as q_strings
+from server.blackjackUtil import BlackjackUtility
 
 class Commands():
     def __init__(self, database):
         self._db = database
+        self._blackjackutil = BlackjackUtility()
 
     def create_user(self, command):
         info_dict = {
@@ -104,15 +106,22 @@ class Commands():
     def blackjackCreateGame(self, command):
         if not command['session']:
             return({'code': '400', 'message': 'Missing Parameters'})
+        dealerCards = []
+        playerCards = []
+        for i in range(0, 2):
+            dealerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
+        for i in range(0, 2):
+            playerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
         # userId = self._db.handleQuery(
         #     (command['session'],), 'getUserBySession')
         #mResponse = self._db.handleMutation(
-        #    (userId, str(uuid.uuid4()), ), 'blackjackCreateGame')
+        #    (userId, str(uuid.uuid4()), dealerCards, playerCards ), 'blackjackCreateGame')
+
         return {
             'code': '200',
             'gameSession': str(uuid.uuid4()),
-            'dealerCards': [],
-            'playerCards': [],
+            'dealerCards': dealerCards,
+            'playerCards': playerCards,
         }
 
     def blackjackHit(self, command):

@@ -3,9 +3,10 @@ import termcolor
 from client.blackjack.suitASCII import suits
 
 class Card():
-    def __init__(self, suit, value):
+    def __init__(self, suit, value, orderValue):
         self._suit = suit
         self._value = value
+        self._order = orderValue
         self._cardString = suits[suit].format(value if value != '10' else 'X', value if value != '10' else 'X')
         self._color = None
 

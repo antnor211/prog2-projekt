@@ -35,9 +35,19 @@ class BlackjackUtility:
                 if card['value'] + suitVal == r:
                   break
                 uniqueCard = True
+        cardValue = r % 4
+        if r == 0:
+            cardValue = 'A'
+        elif r == 10:
+            cardValue = 'J'
+        elif r == 11:
+            cardValue = 'Q'
+        elif r == 12:
+            cardValue = 'K'
         card = {
             'suit': self._getSuitVal(math.floor(r / 4)),
-            'value': r % 4
+            'order': r % 4,
+            'value': str(cardValue)
         }
                 
 
