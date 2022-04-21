@@ -9,10 +9,12 @@ sys.path.append(os.getcwd())
 from socketServer import SocketServer
 from commands import Commands
 from database.Database import Database
+from server.database.migrate import Migrate
+
 
 if __name__ == "__main__":
     with SocketServer("localhost", 8000) as ss:
-        with Database()as db:
+        with Database("/database/Database.db")as db:
             comamnds = Commands(db)
             while True:
                 connector, address = ss.accept()
