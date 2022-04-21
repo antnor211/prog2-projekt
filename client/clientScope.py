@@ -178,11 +178,13 @@ class ClientScope():
 
         actionResponse = None
         while True:
+            print('hangs')
             if actionResponse:
                 if actionResponse['code'] == '200':
                     for card in createResponse['playerCards']:
                         gameInstance.addPlayerCard(card)
- 
+            print('hangs 2')
+
             self._blackjackPage(gameInstance.getFormattedPlayerCards(), gameInstance.getForamttedDealerCards())
             print('[0] Hit')
             print('[1] Stand')

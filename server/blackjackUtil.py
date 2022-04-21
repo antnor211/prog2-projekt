@@ -5,6 +5,7 @@ class BlackjackUtility:
     def __init__(self):
         pass
     def _getSuitString(self, suitVal):
+            print(suitVal)
             s = ''
             if suitVal == 0:
                 s = 'hearts'
@@ -15,13 +16,15 @@ class BlackjackUtility:
             elif suitVal == 3:
                 s = 'clubs'
             return s
+
     def getRandomCard(self, drawn):
+        print('entered', drawn)
         def _getRandomCard():
-            return math.floor(random.ranodm()*54)
+            return math.floor(random.random()*52)
         r = 0
+        r = _getRandomCard()
         uniqueCard = False
-        while not uniqueCard:
-            r = _getRandomCard()
+        while not uniqueCard and len(drawn) != 0:
             for card in drawn:
                 suitVal = 0
                 if card['suit'] == 'hearts':
@@ -32,9 +35,13 @@ class BlackjackUtility:
                     suitVal = 26
                 elif card['suit'] == 'clubs':
                     suitVal = 39
-                if card['value'] + suitVal == r:
-                  break
+                if card['orderValue'] + suitVal == r:
+                    r = _getRandomCard()
+                    break
+                print(uniqueCard)
                 uniqueCard = True
+            print('entered 1')
+
         cardValue = r % 4
         if r == 0:
             cardValue = 'A'
@@ -44,14 +51,13 @@ class BlackjackUtility:
             cardValue = 'Q'
         elif r == 12:
             cardValue = 'K'
+        print(cardValue)
         card = {
-            'suit': self._getSuitVal(math.floor(r / 4)),
-            'order': r % 4,
+            'suit': self._getSuitString(math.floor(r / 13)),
+            'orderValue': r % 4,
             'value': str(cardValue)
         }
-                
-
-
+        return card    
 
     def getTotal(self, cards):
         aceCount = 0 

@@ -50,11 +50,11 @@ class BlackJack:
         return self._dealerCards
     
     def addPlayerCard(self, card):
-        newCard = Card(card['suit'], card['value']).getCard()
+        newCard = Card(card).getCard()
         self._playerCards.append(newCard)
     
     def addDealerCard(self, card):
-        newCard = Card(card['suit'], card['value']).getCard()
+        newCard = Card(card).getCard()
         self._dealerCards.append(newCard)
 
     def getFormattedPlayerCards(self):
