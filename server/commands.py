@@ -17,7 +17,12 @@ class Commands():
         }
         return info_dict
 
-    def 
+    def delete_user(self, command):
+        info_dict = {
+            "connand": "delete_user",
+            "params": command["body"]["username"]
+        }
+        return info_dict
 
     def login(self, command):
         if not command['body']['username'] or not command['body']['password']:
@@ -99,16 +104,11 @@ class Commands():
     def blackjackCreateGame(self, command):
         if not command['session']:
             return({'code': '400', 'message': 'Missing Parameters'})
-        # userId = self._db.handleQuery(
-        #     (command['session'],), 'getUserBySession')
-        #mResponse = self._db.handleMutation(
-        #    (userId, str(uuid.uuid4()), ), 'blackjackCreateGame')
-        return {
-            'code': '200',
-            'gameSession': str(uuid.uuid4()),
-            'dealerCards': [],
-            'playerCards': [],
-        }
+        userId = self._db.handleQuery(
+            (command['session'],), 'getUserBySession')
+        mResponse = self._db.handleMutation(
+            (userId, str(uuid.uuid4()), ), 'blackjackCreateGame')
+
     def blackjackHit(self, command):
         if not command['body']['gameSession'] and not command['session']:
             return({'code': '400', 'message': 'Missing Parameters'})
