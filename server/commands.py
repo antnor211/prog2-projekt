@@ -17,8 +17,6 @@ class Commands():
         }
         return info_dict
 
-    def 
-
     def login(self, command):
         if not command['body']['username'] or not command['body']['password']:
             return({'code': '400', 'message': 'Missing Parameters'})

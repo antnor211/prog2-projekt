@@ -170,9 +170,9 @@ class ClientScope():
         if createResponse['code'] == '200':
             gameInstance.updateGameSession(createResponse['gameSession'])
             for card in createResponse['dealerCards']:
-                gameInstance.addDealerCard({'suit': card['suit'], 'value': card['value']})
+                gameInstance.addDealerCard(card)
             for card in createResponse['playerCards']:
-                gameInstance.addPlayerCard({'suit': card['suit'], 'value': card['value']})
+                gameInstance.addPlayerCard(card)
         else: 
             self.currentFrame = self.menu
 
@@ -181,7 +181,7 @@ class ClientScope():
             if actionResponse:
                 if actionResponse['code'] == '200':
                     for card in createResponse['playerCards']:
-                        gameInstance.addPlayerCard({'suit': card['suit'], 'value': card['value']})
+                        gameInstance.addPlayerCard(card)
  
             self._blackjackPage(gameInstance.getFormattedPlayerCards(), gameInstance.getForamttedDealerCards())
             print('[0] Hit')
