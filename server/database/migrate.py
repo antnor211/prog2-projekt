@@ -32,8 +32,8 @@ class Migrate(Action):
                 print("END of quary line")
             else:
                 continue
-        self.commit_crud()
-
+        self._con.commit()
+        
         os.system("cls" if os.name == "nt" else "clear")
         reset_message = """
 
