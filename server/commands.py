@@ -12,9 +12,9 @@ class Commands():
         info_dict = {
             "command": "create_user",
             "params": 
-            [command["body"]["firstname"], 
-            command["body"]["lastname"], 
-            command["body"]["username"], 
+            #[command["body"]["firstname"], 
+            #command["body"]["lastname"], 
+            [command["body"]["username"], 
             command["body"]["password"]]
         }
         return info_dict
@@ -53,14 +53,15 @@ class Commands():
         }
 
     def createUser(self, command):
-        if not command['body']['username'] or not command['body']['password'] or not command['body']['publicKey']:
+        print("här!!!!!")
+        if not command['body']['username'] or not command['body']['password']:
             return({'code': '400', 'message': 'Missing Parameters'})
         userId = self._db.handleQuery(
             (command['body']['username'],), 'getUserbyUsername')
         if len(userId) != 0:
             return({'code': '400', 'message': 'Username Taken'})
         mResponse = self._db.handleMutation(
-            (command['body']['username'], str(uuid.uuid4()), command['body']['password'], command['body']['publicKey'], 'foo'), 'create_user')
+            (command['body']['username'], str(uuid.uuid4()), command['body']['password']), 'create_user')
         newSess = self._db.handleUpdate(
             (str(uuid.uuid4()), mResponse[1]), 'session')
         return {

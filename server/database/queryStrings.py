@@ -1,7 +1,7 @@
 mutate = {
     "create_user": """
-    insert into users(firstname, lastname, username, password)
-        values ({firstname}, {lastname}, {username}, {password});
+    insert into users(username, password)
+        values ({username}, {password});
     """,
     "delete_user": """
     delete from users
@@ -22,12 +22,6 @@ update = {
     "update_password": """
     update users
     set password = {password}
-    where username is {username};
-    """,
-    "update_name": """
-    update users
-    set firstname = {firstname},
-        lastname = {lastname}
     where username is {username};
     """
 }
