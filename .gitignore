@@ -1,1 +1,5 @@
 .idea
+*.db
+*__pycache__/
+*.pem
+*/database.db
