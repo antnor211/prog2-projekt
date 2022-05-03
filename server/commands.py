@@ -21,7 +21,7 @@ class Commands():
 
     def delete_user(self, command):
         info_dict = {
-            "connand": "delete_user",
+            "command": "delete_user",
             "params": command["body"]["username"]
         }
         return info_dict
@@ -60,7 +60,7 @@ class Commands():
         if len(userId) != 0:
             return({'code': '400', 'message': 'Username Taken'})
         mResponse = self._db.handleMutation(
-            (command['body']['username'], str(uuid.uuid4()), command['body']['password'], command['body']['publicKey'], 'foo'), 'createUser')
+            (command['body']['username'], str(uuid.uuid4()), command['body']['password'], command['body']['publicKey'], 'foo'), 'create_user')
         newSess = self._db.handleUpdate(
             (str(uuid.uuid4()), mResponse[1]), 'session')
         return {

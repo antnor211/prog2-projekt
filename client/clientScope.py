@@ -41,6 +41,7 @@ class ClientScope():
         print(asciiArt.smallAppLogo + asciiArt.smallAppTitle)
         print(termcolor.colored('-'*10 + title + '-'*10, 'blue'))
         print('\n'*1)
+
     def _blackjackPage(self, playerCards, dealerCards, ):
         os.system('clear')
         print(dealerCards)
@@ -115,7 +116,7 @@ class ClientScope():
         password = SHA256.new(data=password.strip().encode())
 
         p = {
-            'head': 'createUser',
+            'head': 'create_user',
             'body': {
                 'username': self._username,
                 'password': password.hexdigest(),

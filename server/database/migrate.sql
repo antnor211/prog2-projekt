@@ -15,7 +15,7 @@ create table users(
 
 create table games(
     id integer primary key not null,
-    player integer not null,
+    gameSession integer not null,
     playerCards text not null, 
     dealerCards text not null
 );

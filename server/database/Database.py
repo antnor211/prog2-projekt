@@ -1,18 +1,14 @@
 from distutils.log import INFO, info
 import sqlite3
+from server.database.Action import Action
 
 from server.database.migrate import Migrate
 from server.database.query import Query
 import server.database.queryStrings as q_strings
 
-class Database:
+class Database(Action):
     def __init__(self, db_path):
-        self._db_path = db_path
-        self._con = sqlite3.connect(self._db_path)
-        self._cur = self._con.cursor()
-
-        #self.handleMigration = Migrate("database.db")
-        #self.handleQuery = Query("database.db")
+        Action.__init__(self, db_path)
 
     def handle_migration(self, path):
         migration = Migrate(path)
