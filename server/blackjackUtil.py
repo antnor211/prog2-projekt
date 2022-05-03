@@ -1,11 +1,10 @@
-from enum import unique
 import random
 import math
 class BlackjackUtility:
     def __init__(self):
         pass
     def _getSuitString(self, suitVal):
-            print(suitVal)
+            print('suitval', suitVal)
             s = ''
             if suitVal == 0:
                 s = 'hearts'
@@ -38,42 +37,45 @@ class BlackjackUtility:
                 if card['orderValue'] + suitVal == r:
                     r = _getRandomCard()
                     break
-                print(uniqueCard)
                 uniqueCard = True
-            print('entered 1')
 
-        cardValue = r % 4
-        if r == 0:
+        cardValue = (r % 13) + 1
+        print('cardValue', cardValue)
+        if cardValue == 1:
             cardValue = 'A'
-        elif r == 10:
+        elif cardValue == 11:
             cardValue = 'J'
-        elif r == 11:
+        elif cardValue == 12:
             cardValue = 'Q'
-        elif r == 12:
+        elif cardValue == 13:
             cardValue = 'K'
-        print(cardValue)
         card = {
             'suit': self._getSuitString(math.floor(r / 13)),
-            'orderValue': r % 4,
+            'orderValue': (r % 13 + 1),
             'value': str(cardValue)
         }
         return card    
 
     def getTotal(self, cards):
+        print('\n getting total')
         aceCount = 0 
         total = 0
         for card in cards:
-            val = card['value']
-            if val:
-                total += val
-            else:
+            print(card)
+            val = card['orderValue']
+            if val > 10:
+                total += 10
+            elif val == 1:
                 aceCount += 1
+            else:
+                total += val
         
         for i in range(0, aceCount):
             if (total + 11) > 21:
                 total += 1
             else:
                 total += 11
+        
         return total 
 
     def getWinner(self, dealerTotal, playerTotal):

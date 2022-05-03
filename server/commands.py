@@ -27,7 +27,7 @@ class Commands():
         return info_dict
 
     def login(self, command):
-        
+
         if not command['body']['username'] or not command['body']['password']:
             return({'code': '400', 'message': 'Missing Parameters'})
 
@@ -121,20 +121,60 @@ class Commands():
         return {
             'code': '200',
             'gameSession': str(uuid.uuid4()),
-            'dealerCards': dealerCards,
-            'playerCards': playerCards,
+            'game': {
+                'dealer': {
+                    'cards': dealerCards,
+                    'total': self._blackjackutil.getTotal(dealerCards),
+                },
+                'player': {
+                    'cards': playerCards,
+                    'total': self._blackjackutil.getTotal(playerCards),
+                }
+            }
         }
 
     def blackjackHit(self, command):
         if not command['body']['gameSession'] and not command['session']:
             return({'code': '400', 'message': 'Missing Parameters'})
         sessionId = command['body']['gameSession']
-
+        #addCheck when db is up and running
+        playerCards = []
+        newCard = self._blackjackutil.getRandomCard(playerCards)
+        playerCards.append(newCard)
+        print(newCard)
+        return {
+                'code': '200',
+                'gameSession': sessionId,
+                'head': 'blackjackHit',
+                'game': {
+                    'player': {
+                        'newCard': newCard,
+                        'total': self._blackjackutil.getTotal(playerCards),
+                    }
+                }
+            }
     def blackjackStand(self, command):
         if not command['body']['gameSession'] and not command['session']:
             return({'code': '400', 'message': 'Missing Parameters'}) 
         sessionId = command['body']['gameSession']
-
+        #FIX hookup to db
+        dealerCards = []
+        playerCards = []
+        return {
+                    'code': '200',
+                    'gameSession': sessionId,
+                    'head': 'blackjackStand',
+                    'game': {
+                        'dealer': {
+                            'cards': dealerCards,
+                            'total': self._blackjackutil.getTotal(dealerCards),
+                        },
+                        'player': {
+                            'cards': playerCards,
+                            'total': self._blackjackutil.getTotal(playerCards),
+                        }
+                    }
+                }
     def logout(self, command):
         if not command['body']['username']:
             return({'code': '400', 'message': 'Missing Parameters'})

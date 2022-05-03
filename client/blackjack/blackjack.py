@@ -8,40 +8,6 @@ class BlackJack:
         self._playerTotal = 0
         self._dealerTotal = 0
     
-    def getDealerTotal(self):
-        aceCount = 0 
-        for card in self._dealerCards:
-            val = card['value']
-            if val:
-                self._dealerTotal += val
-            else:
-                aceCount += 1
-        
-        for i in range(0, aceCount):
-            if (self._dealerTotal + 11) > 21:
-                self._dealerTotal += 1
-            else:
-                self._dealerTotal += 11
-        
-        return self._dealerTotal
-
-    def getPlayerTotal(self):
-        aceCount = 0 
-
-        for card in self._playerCards:
-            val = card['value']
-            if val:
-                self._playerTotal += val
-            else:
-                aceCount += 1
-        
-        for i in range(0, aceCount):
-            if (self._playerTotal + 11) > 21:
-                self._playerTotal += 1
-            else:
-                self._playerTotal += 11
-        
-        return self._playerTotal
 
     def getPlayerCards(self):
         return self._playerCards 
@@ -49,6 +15,18 @@ class BlackJack:
     def getDealerCards(self):
         return self._dealerCards
     
+    def getPlayerTotal(self):
+        return self._playerTotal
+    
+    def getDealerTotal(self):
+        return self._dealerTotal
+    
+    def newDealerTotal(self, total):
+        self._dealerTotal = total
+
+    def newPlayerTotal(self, total):
+        self._playerTotal = total
+        
     def addPlayerCard(self, card):
         newCard = Card(card).getCard()
         self._playerCards.append(newCard)

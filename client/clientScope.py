@@ -41,14 +41,22 @@ class ClientScope():
         print(asciiArt.smallAppLogo + asciiArt.smallAppTitle)
         print(termcolor.colored('-'*10 + title + '-'*10, 'blue'))
         print('\n'*1)
+<<<<<<< HEAD
 
     def _blackjackPage(self, playerCards, dealerCards, ):
         os.system('clear')
+=======
+    
+    def _blackjackPage(self, playerCards, dealerCards, playerTotal, dealerTotal):
+        #os.system('clear')
+>>>>>>> 6f71cc333e29a515fdc778ddc3590da27240cec4
         print(dealerCards)
+        print('Dealer Total:', dealerTotal)
         print('\n'*3)
         print(termcolor.colored('-'*10 + ' BLACKJACK ' + '-'*10, 'blue'))
         print('\n'*5)
         print(playerCards)
+        print('Your Total:', playerTotal)
         print('\n'*1)
 
     def loginMethod(self):
@@ -154,11 +162,6 @@ class ClientScope():
     
     def blackjack(self): 
         gameInstance = BlackJack()
-
-        # gameInstance.addPlayerCards({'suit': 'hearts', 'value': 'K'})
-        # gameInstance.addPlayerCards({'suit': 'hearts', 'value': '10'})
-
-        #start instance
         p = {
             'head': 'blackjackCreateGame',
             'body': {
@@ -170,36 +173,41 @@ class ClientScope():
         
         if createResponse['code'] == '200':
             gameInstance.updateGameSession(createResponse['gameSession'])
-            for card in createResponse['dealerCards']:
+            for card in createResponse['game']['dealer']['cards']:
                 gameInstance.addDealerCard(card)
-            for card in createResponse['playerCards']:
+            for card in createResponse['game']['player']['cards']:
                 gameInstance.addPlayerCard(card)
+            print(createResponse['game']['dealer']['total'])
+            print(createResponse['game']['player']['total'])
+            gameInstance.newDealerTotal(createResponse['game']['dealer']['total'])
+            gameInstance.newPlayerTotal(createResponse['game']['player']['total'])
         else: 
             self.currentFrame = self.menu
 
         actionResponse = None
         while True:
-            print('hangs')
             if actionResponse:
-                if actionResponse['code'] == '200':
-                    for card in createResponse['playerCards']:
-                        gameInstance.addPlayerCard(card)
-            print('hangs 2')
+                print('response')
+                if actionResponse['code'] == '200' and actionResponse['head'] == 'blackjackHit':
+                    gameInstance.addPlayerCard(actionResponse['game']['player']['newCard'])
+                    gameInstance.newPlayerTotal(actionResponse['game']['player']['total'])
+                    actionResponse = None
 
-            self._blackjackPage(gameInstance.getFormattedPlayerCards(), gameInstance.getForamttedDealerCards())
+            self._blackjackPage(gameInstance.getFormattedPlayerCards(), gameInstance.getForamttedDealerCards(), gameInstance.getPlayerTotal(),  gameInstance.getDealerTotal())
             print('[0] Hit')
             print('[1] Stand')
             
-            choice = self._optionInput('Choose Option ', 0, 1)
-            if choice != 0 or choice != 1:
+            choice = int(self._optionInput('Choose Option ', 0, 1))
+            if choice != 0 and choice != 1:
                 continue
             p = {
                 'head': 'blackjackHit' if choice == 0 else 'blackjackStand',
                 'body': {
-                    'gameSession': gameInstance.gameSession 
+                    'gameSession': gameInstance.gameSession,
                 },
                 'session': self._session
             }
+            print(p)
             actionResponse = self._socket.send(p)
 
 
