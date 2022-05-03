@@ -6,8 +6,8 @@ class Card():
     def __init__(self, card):
         self._suit = card['suit']
         self._value = card['value']
-        self._order = card['orderValue']
-        self._cardString = suits[ self._suit].format( self._value if  self._value != '10' else 'X',  self._value if  self._value != '10' else 'X')
+        self._orderValue = card['orderValue']
+        self._cardString = suits[ self._suit].format( self._value if  self._value != '10' else 'X',  self._value if self._value != '10' else 'X')
         self._color = None
 
     def _getValue(self):
