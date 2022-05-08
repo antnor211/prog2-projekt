@@ -1,4 +1,3 @@
-from distutils.log import INFO, info
 import sqlite3
 from server.database.Action import Action
 
@@ -13,18 +12,6 @@ class Database(Action):
     def handle_migration(self, path):
         migration = Migrate(path)
         migration.migrate_data()
-
-    def handle_mutation(self, info_dict):
-        str_to_exec = q_strings.mutate[info_dict["command"]].format(
-            info_dict["params"]
-        )
-        self._cur.execute(str_to_exec)
-
-    def handle_update(self, info_dict):
-        str_to_exec = q_strings.update[info_dict["command"]].format(
-            info_dict["params"]
-        )
-        self._cur.execute(str_to_exec)
 
     def handle_fetch(self, info_dict):
         str_to_exec = q_strings.fetch[info_dict["command"]].format(

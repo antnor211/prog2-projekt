@@ -6,7 +6,7 @@ PRAGMA foreign_keys = on;
 create table users(
     id integer primary key autoincrement not null,
     username text not null,
-    balance float default null,
+    balance float default 0.0,
     password text not null,
     session text 
 );
