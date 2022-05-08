@@ -40,5 +40,8 @@ class Action:
         except:
             print("\nNÅGOT GICK INTE SOM DET SKULLE :(\n")
             
+    def handle_deletion(self, params, command):
+        query = self.q.query(command).format(username=params)
+    
     def handle_update(self):
         pass

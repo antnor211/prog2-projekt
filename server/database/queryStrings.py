@@ -2,10 +2,7 @@ class queryStrings:
     def __init__(self) -> None:
         self.querys = {
         "create_user": "INSERT INTO users(username, password, session) VALUES({username}, {password}, {session});",
-        "delete_user": """
-        delete from users
-        where username = {username};
-        """,  
+        "delete_user": "delete from users where username = {username};",  
         "add_game": """
         insert into games(gameSession, playerCards, dealerCards)
             values ({player}, {player_cards}, {dealer_cards});

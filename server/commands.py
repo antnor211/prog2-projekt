@@ -64,32 +64,35 @@ class Commands():
             username, 'get_user_by_username')
         if len(user_id) != 0:
             return({'code': '400', 'message': 'Username Taken'})
-        mResponse = self._db.handle_mutation(
+        self._db.handle_mutation(
             [username, password, session], 'create_user')
         new_sess_tuple = self._db.handle_query(
             username, 'get_user_by_username')
         new_sess = list(new_sess_tuple)
+
         #newSess = self._db.handle_update(
         #    (str(uuid.uuid4()), mResponse[1]), 'session')
+
         return {
             'code': '200',
             'session': new_sess[4],
         }
 
     def deleteUser(self, command):
+        username = "\'"+command['body']['username']+"\'"
+
         if not command['body']['username'] or not command['session']:
             return({'code': '400', 'message': 'Missing Parameters'})
-        userId = self._db. handle_query(
-            (command['body']['username'],), ' get_user_by_username')
+        userId = self._db.handle_query(
+            username, 'get_user_by_username')
         if len(userId) == 0:
             return({'code': '400', 'message': 'Username Does not match any records'})
-        session = self._db. handle_query(
-            (userId[0][0],), 'getCurrentSession')
-        if session[0][0] != command['session']:
-            return({'code': '401', 'message': 'No session established'})
-        self._db.handleMutation(
-            (userId[0][0],), 'deleteUser')
-
+        #session = self._db.handle_query(
+        #    (userId[0][0],), 'getCurrentSession')
+        #if session[0][0] != command['session']:
+        #    return({'code': '401', 'message': 'No session established'})
+        self._db.handle_deletion(
+            username, 'delete_user')
         return {
             'code': '200',
         }
