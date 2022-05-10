@@ -28,26 +28,25 @@ class Commands():
         return info_dict
 
     def login(self, command):
+        username = "\'"+command['body']['username']+"\'"
 
         if not command['body']['username'] or not command['body']['password']:
             return({'code': '400', 'message': 'Missing Parameters'})
-
-        # userId = self._db. handle_query(
-        #     (command['body']['username'],), ' get_user_by_username')
-        # if len(userId) == 0:
-        #     return({
-        #         'code': '401',
-        #         'message': 'Username or password is incorrect'
-        #     })
-        # password = self._db. handle_query((userId[0][0],), 'getPassword')
-        # if password[0][0] != command['body']['password']:
-        #     return({
-        #         'code': '401',
-        #         'message': 'Username or password is incorrect'
-        #     })
-        # newSess = self._db.handleUpdate(
-        #     (str(uuid.uuid4()), userId[0][0]), 'session')
-
+        userId = self._db.handle_query(
+            (command['body']['username'],), ' get_user_by_username')
+        if len(userId) == 0:
+            return({
+                'code': '401',
+                'message': 'Username or password is incorrect'
+            })
+        password = self._db.handle_query(username, 'get_password')
+        if password != command['body']['password']:
+            return({
+                'code': '401',
+                'message': 'Username or password is incorrect'
+            })
+        newSess = self._db.handle_update(
+            (str(uuid.uuid4()), userId[0][0]), 'session')
         return {
             'code': '200',
             'session': str(uuid.uuid4()), #newSess[0],
