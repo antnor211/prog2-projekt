@@ -12,4 +12,7 @@ class Action:
         self._con.commit()
         self._con.close()
 
-    
+    def trim_string(self, string):
+        string.removesuffix("+\'")
+        string.removeprefix("\'+")
+        return string 
