@@ -99,6 +99,7 @@ class ClientScope():
         print('response', response)
         if response['code'] == '200':
             self._session = response['session']
+            self._playerBalance = response['playerBalance']
             self.currentFrame = self.menu
         else:
             self._failedLogin = True
@@ -138,10 +139,12 @@ class ClientScope():
         if response['code'] == '200':
             print(response)
             self._session = response['session']
+            self._playerBalance = response['playerBalance']
             self.currentFrame = self.menu
 
     def menu(self):
         self._page('MENU')
+        print('PLAYER BALANCE: ' + termcolor.colored(str(self._playerBalance), 'green') + '\n')
         print('[0] Play Blackjack')
         print('[1] Settings')
         choice = self._optionInput('Choose Option ', 0, 1)
@@ -162,11 +165,24 @@ class ClientScope():
         elif choice == 1:
             self.currentFrame = self.deleteUser
     
-    def blackjack(self): 
+    def blackjack(self):
+        def getBetBalance():
+            self._page('BETTING')
+            validAmount = None
+            while not validAmount:
+                print('PLAYER BALANCE: ' + termcolor.colored(str(self._playerBalance), 'green') + '\n')
+                print('How much would you like to bet?')
+                choice = self._optionInput('Choose Amount: ', 1, self._playerBalance)
+                if not choice >= 1 and not choice <= self._playerBalance:
+                    continue
+                return choice
+        playerBet = getBetBalance()  
         gameInstance = BlackJack()
+        gameInstance.addPlayerBet(playerBet)
         p = {
             'head': 'blackjackCreateGame',
             'body': {
+                'playerBet': gameInstance.getPlayerBet()
             },
             'session': self._session
         }
@@ -191,15 +207,19 @@ class ClientScope():
                     gameInstance.newPlayerTotal(actionResponse['game']['player']['total'])
                     if actionResponse['game']['resultState'] == 'bust':
                         gameInstance.newResult(actionResponse['game']['resultState'])
+                        self._playerBalance = actionResponse['game']['player']['playerBalance']
                 
                 if actionResponse['code'] == '200' and actionResponse['head'] == 'blackjackStand':
                     gameInstance.newDealerCards(actionResponse['game']['dealer']['cards'])
                     gameInstance.newDealerTotal(actionResponse['game']['dealer']['total'])
                     gameInstance.newResult(actionResponse['game']['resultState'])
+                    self._playerBalance = actionResponse['game']['player']['playerBalance']
+
                 
                 actionResponse = None
             self._blackjackPage(gameInstance.getFormattedPlayerCards(), gameInstance.getForamttedDealerCards(), gameInstance.getPlayerTotal(),  gameInstance.getDealerTotal(), gameInstance.getResult())
             if not gameInstance.getResult():
+                print('PLAYER BET: ' + termcolor.colored(str(gameInstance.getPlayerBet()), 'green') + '\n')
                 print('[0] Hit')
                 print('[1] Stand')
                 
@@ -215,6 +235,7 @@ class ClientScope():
                 }
                 actionResponse = self._socket.send(p)
             else: 
+                print('PLAYER BALANCE: ' + termcolor.colored(str(self._playerBalance), 'green') + '\n')
                 print('[0] New Game')
                 print('[1] Return To Main Menu')
                 choice = int(self._optionInput('Choose Option ', 0, 1))

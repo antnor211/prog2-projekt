@@ -7,6 +7,8 @@ class BlackJack:
 
         self._playerTotal = 0
         self._dealerTotal = 0
+
+        self._playerBet = 0
         self._result = False
 
     def getPlayerCards(self):
@@ -44,6 +46,12 @@ class BlackJack:
     
     def getResult(self):
         return self._result
+    
+    def addPlayerBet(self, playerBet):
+        self._playerBet = playerBet
+    
+    def getPlayerBet(self):
+        return self._playerBet
     
     def getFormattedPlayerCards(self):
         cardsString = ''
