@@ -9,10 +9,8 @@ class Query:
         self._cur = self._con.cursor()
 
 
-    def create_user(self, firstname, lastname, username, password):
+    def create_user(self, username, password):
         query = queryStrings.mutate["create_user"].format(
-            firstname = firstname, 
-            lastname = lastname, 
             username = username, 
             password = password)
         print(query)

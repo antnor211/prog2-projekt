@@ -1,3 +1,4 @@
+from hashlib import new
 from operator import imod
 import uuid
 import database.queryStrings as q_strings
@@ -12,9 +13,9 @@ class Commands():
         info_dict = {
             "command": "create_user",
             "params": 
-            [command["body"]["firstname"], 
-            command["body"]["lastname"], 
-            command["body"]["username"], 
+            #[command["body"]["firstname"], 
+            #command["body"]["lastname"], 
+            [command["body"]["username"], 
             command["body"]["password"]]
         }
         return info_dict
@@ -27,6 +28,7 @@ class Commands():
         return info_dict
 
     def login(self, command):
+        username = "\'"+command['body']['username']+"\'"
 
         if not command['body']['username'] or not command['body']['password']:
             return({'code': '400', 'message': 'Missing Parameters'})
@@ -55,36 +57,45 @@ class Commands():
         }
 
     def createUser(self, command):
-        if not command['body']['username'] or not command['body']['password'] or not command['body']['publicKey']:
+        username = "\'" + command['body']['username'] + "\'"
+        password = "\'" + command['body']['password'] + "\'"
+        session = "\'"+str(uuid.uuid4())+"\'"
+
+        if not command['body']['username'] or not command['body']['password']:
             return({'code': '400', 'message': 'Missing Parameters'})
-        userId = self._db.handleQuery(
-            (command['body']['username'],), 'getUserbyUsername')
-        if len(userId) != 0:
+        user_id = self._db.handle_query(
+            username, 'get_user_by_username')
+        if len(user_id) != 0:
             return({'code': '400', 'message': 'Username Taken'})
-        mResponse = self._db.handleMutation(
-            (command['body']['username'], str(uuid.uuid4()), command['body']['password'], command['body']['publicKey'], 'foo'), 'create_user')
-        newSess = self._db.handleUpdate(
-            (str(uuid.uuid4()), mResponse[1]), 'session')
+        self._db.handle_mutation(
+            [username, password, session], 'create_user')
+        new_sess_tuple = self._db.handle_query(
+            username, 'get_user_by_username')
+        new_sess = list(new_sess_tuple)
+
+        #newSess = self._db.handle_update(
+        #    (str(uuid.uuid4()), mResponse[1]), 'session')
+
         return {
             'code': '200',
-            'session': newSess[0],
-            'playerBalance': 0
+            'session': new_sess[4],
         }
 
     def deleteUser(self, command):
+        username = "\'"+command['body']['username']+"\'"
+
         if not command['body']['username'] or not command['session']:
             return({'code': '400', 'message': 'Missing Parameters'})
-        userId = self._db.handleQuery(
-            (command['body']['username'],), 'getUserbyUsername')
+        userId = self._db.handle_query(
+            username, 'get_user_by_username')
         if len(userId) == 0:
             return({'code': '400', 'message': 'Username Does not match any records'})
-        session = self._db.handleQuery(
-            (userId[0][0],), 'getCurrentSession')
-        if session[0][0] != command['session']:
-            return({'code': '401', 'message': 'No session established'})
-        self._db.handleMutation(
-            (userId[0][0],), 'deleteUser')
-
+        #session = self._db.handle_query(
+        #    (userId[0][0],), 'getCurrentSession')
+        #if session[0][0] != command['session']:
+        #    return({'code': '401', 'message': 'No session established'})
+        self._db.handle_deletion(
+            username, 'delete_user')
         return {
             'code': '200',
         }
@@ -92,11 +103,11 @@ class Commands():
     def newPassword(self, command):
         if not command['body']['username'] or not command['session'] or not command['body']['newPassword']:
             return({'code': '400', 'message': 'Missing Parameters'})
-        userId = self._db.handleQuery(
-            (command['body']['username'],), 'getUserbyUsername')
+        userId = self._db. handle_query(
+            (command['body']['username'],), ' get_user_by_username')
         if len(userId) == 0:
             return({'code': '400', 'message': 'Username Does not match any records'})
-        session = self._db.handleQuery(
+        session = self._db. handle_query(
             (userId[0][0],), 'getCurrentSession')
         if session[0][0] != command['session']:
             return({'code': '401', 'message': 'No session established'})
@@ -116,7 +127,7 @@ class Commands():
             dealerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
         for i in range(0, 2):
             playerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
-        # userId = self._db.handleQuery(
+        # userId = self._db. handle_query(
         #     (command['session'],), 'getUserBySession')
         #mResponse = self._db.handleMutation(
         #    (userId, str(uuid.uuid4()), dealerCards, playerCards ), 'blackjackCreateGame')
@@ -190,8 +201,8 @@ class Commands():
     def logout(self, command):
         if not command['body']['username']:
             return({'code': '400', 'message': 'Missing Parameters'})
-        userId = self._db.handleQuery(
-            (command['body']['username'],), 'getUserbyUsername')
+        userId = self._db. handle_query(
+            (command['body']['username'],), ' get_user_by_username')
         if len(userId) == 0:
             return({'code': '400', 'message': 'Username Does not match any records'})
         self._db.handleUpdate(

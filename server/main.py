@@ -2,7 +2,6 @@ import ssl
 import sys
 import os
 import json
-from tkinter import E
 
 sys.path.append(os.getcwd())
 
@@ -14,7 +13,7 @@ from server.database.migrate import Migrate
 
 if __name__ == "__main__":
     with SocketServer("localhost", 8000) as ss:
-        with Database("database.db")as db:
+        with Database("server/database/database.db")as db:
             comamnds = Commands(db)
             while True:
                 connector, address = ss.accept()

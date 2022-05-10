@@ -5,11 +5,10 @@ PRAGMA foreign_keys = on;
 
 create table users(
     id integer primary key autoincrement not null,
-    firstname text not null,
-    lastname text not null,
     username text not null,
-    balance float default null,
-    password text not null
+    balance float default 0.0,
+    password text not null,
+    session text 
 );
 
 

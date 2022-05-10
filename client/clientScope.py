@@ -115,27 +115,28 @@ class ClientScope():
         if username or username == '':
             password = input('[Password] ')
 
-        key = RSA.generate(2048)
+        # key = RSA.generate(2048)
 
-        f = open('{}.pem'.format(self._username), 'wb')
-        f.write(key.export_key('PEM'))
-        f.close()
-        pk = key.publickey().export_key()
+        # f = open('{}.pem'.format(self._username), 'wb')
+        # f.write(key.export_key('PEM'))
+        # f.close()
+        # pk = key.publickey().export_key()
 
         password = SHA256.new(data=password.strip().encode())
 
         p = {
-            'head': 'create_user',
+            'head': 'createUser',
             'body': {
                 'username': self._username,
                 'password': password.hexdigest(),
-                'publicKey': pk.decode(),
+                # 'publicKey': pk.decode(),
             },
             'session': ''
         }
 
         response = self._socket.send(p)
         if response['code'] == '200':
+            print(response)
             self._session = response['session']
             self.currentFrame = self.menu
 
