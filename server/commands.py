@@ -46,10 +46,12 @@ class Commands():
         #     })
         # newSess = self._db.handleUpdate(
         #     (str(uuid.uuid4()), userId[0][0]), 'session')
-
+        #playerBalance = self._db.handleQuery((userId[0][0],), 'getBalance')
+        playerBalance = 10
         return {
             'code': '200',
             'session': str(uuid.uuid4()), #newSess[0],
+            'playerBalance': playerBalance,
         }
 
     def createUser(self, command):
@@ -66,6 +68,7 @@ class Commands():
         return {
             'code': '200',
             'session': newSess[0],
+            'playerBalance': 0
         }
 
     def deleteUser(self, command):
@@ -117,7 +120,6 @@ class Commands():
         #     (command['session'],), 'getUserBySession')
         #mResponse = self._db.handleMutation(
         #    (userId, str(uuid.uuid4()), dealerCards, playerCards ), 'blackjackCreateGame')
-
         return {
             'code': '200',
             'gameSession': str(uuid.uuid4()),
@@ -141,6 +143,7 @@ class Commands():
         playerCards = []
         newCard = self._blackjackutil.getRandomCard(playerCards)
         playerCards.append(newCard)
+        bust = 'PLAYER BUST' if self._blackjackutil.getTotal(playerCards) > 21 else 'false'
         print(newCard)
         return {
                 'code': '200',
@@ -148,9 +151,10 @@ class Commands():
                 'head': 'blackjackHit',
                 'game': {
                     'player': {
-                        'newCard': newCard,
+                        'cards': playerCards,
                         'total': self._blackjackutil.getTotal(playerCards),
-                    }
+                    },
+                    'resultState': bust
                 }
             }
     def blackjackStand(self, command):
@@ -160,6 +164,13 @@ class Commands():
         #FIX hookup to db
         dealerCards = []
         playerCards = []
+        while self._blackjackutil.getTotal(dealerCards) <= 17 :
+            dealerCards.append(self._blackjackutil.getRandomCard(dealerCards))
+        
+        playerTotal = self._blackjackutil.getTotal(playerCards)
+        dealerTotal = self._blackjackutil.getTotal(dealerCards)
+        resultState = self._blackjackutil.getWinener(dealerTotal, playerTotal)
+        
         return {
                     'code': '200',
                     'gameSession': sessionId,
@@ -172,7 +183,8 @@ class Commands():
                         'player': {
                             'cards': playerCards,
                             'total': self._blackjackutil.getTotal(playerCards),
-                        }
+                        },
+                        'resultState': str(resultState)
                     }
                 }
     def logout(self, command):

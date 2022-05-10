@@ -29,7 +29,7 @@ class ClientSocket(SocketParent):
             self._sock.send(data.encode())
             response = self._sock.recv(20480)
             response = json.loads(response.decode())
-            print(response)
+            #print(response)
         except Exception as e:
             print(e)
         self._close()

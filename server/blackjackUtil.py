@@ -78,14 +78,13 @@ class BlackjackUtility:
         
         return total 
 
-    def getWinner(self, dealerTotal, playerTotal):
-        if playerTotal > 21:
-            return 'bust'
+    def getWinener(self, dealerTotal, playerTotal):
+        print(dealerTotal, playerTotal)
         if dealerTotal > 21:
-            return 'dealer bust'
+            return 'DEALER BUST'
         if dealerTotal > playerTotal:
-            return 'dealer win'
+            return 'DEALER WIN'
         if dealerTotal < playerTotal:
-            return 'player win'
+            return 'PLAYER WIN'
         if dealerTotal == playerTotal:
-            return 'draw' 
+            return 'DRAW' 
