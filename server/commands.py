@@ -29,31 +29,34 @@ class Commands():
 
     def login(self, command):
         username = "\'"+command['body']['username']+"\'"
+        new_sess = "\'"+str(uuid.uuid4())+"\'"
 
         if not command['body']['username'] or not command['body']['password']:
             return({'code': '400', 'message': 'Missing Parameters'})
-
-        # userId = self._db.handleQuery(
-        #     (command['body']['username'],), 'getUserbyUsername')
-        # if len(userId) == 0:
-        #     return({
-        #         'code': '401',
-        #         'message': 'Username or password is incorrect'
-        #     })
-        # password = self._db.handleQuery((userId[0][0],), 'getPassword')
-        # if password[0][0] != command['body']['password']:
-        #     return({
-        #         'code': '401',
-        #         'message': 'Username or password is incorrect'
-        #     })
-        # newSess = self._db.handleUpdate(
-        #     (str(uuid.uuid4()), userId[0][0]), 'session')
-        #playerBalance = self._db.handleQuery((userId[0][0],), 'getBalance')
-        playerBalance = 10
+        userId = self._db.handle_query(
+            username, 'get_user_by_username')
+        if len(userId) == 0:
+            return({
+                'code': '401',
+                'message': 'Username or password is incorrect'
+            })
+        password = self._db.handle_query(username, 'get_password')
+        password = ''.join(password)
+        #print(f"\n{entered_password}\n")
+        if password != command['body']['password']:
+            return({
+                'code': '401',
+                'message': 'Username or password is incorrect'
+            })
+        self._db.handle_update(
+            (new_sess, username), 'update_session')
+        player_balance = self._db.handle_query(username, 'get_balance')
+        #playerBalance = 10
+        trimed_sess = self._db.trim_string(new_sess)
         return {
             'code': '200',
-            'session': str(uuid.uuid4()), #newSess[0],
-            'playerBalance': playerBalance,
+            'session': trimed_sess,
+            'playerBalance': player_balance,
         }
 
     def createUser(self, command):

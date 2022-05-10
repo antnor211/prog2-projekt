@@ -17,6 +17,7 @@ class Database(Action):
             data = self._cur.execute(query)
             data = data.fetchall()
             to_return = data[0]
+            print(f"\n{data[0]}\n")
         except:
             to_return = ""
         return to_return
@@ -34,20 +35,25 @@ class Database(Action):
             self._con.commit()
             print("done")
         except:
-            print("\nNÅGOT GICK INTE SOM DET SKULLE :(\n")
+            print("\nSomething went wrong\n")
             
     def handle_deletion(self, params, command):
         query = self.q.query(command).format(username=params)
         try:
             self._cur.execute(query)
             self._con.commit()
-            print ("done")
+            print("done")
         except:
-            print("\nNÅGOT GICK INTE SOM DET SKULLE :(\n")
+            print("\nSomething went wrong\n")
     
     def handle_update(self, params, command):
-        query = self.q.query(command).format(username=params)
-
+        query = self.q.query(command).format(username=params[0], session=params[1])
+        try:
+            self._cur.execute(query)
+            self._con.commit()
+            print("done")
+        except:
+            print("\nSomething went wrong\n")
 
 
     def __enter__(self):
