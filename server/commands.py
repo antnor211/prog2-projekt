@@ -57,6 +57,7 @@ class Commands():
         new_sess = list(new_sess_tuple)
         return {
             'code': '200',
+            'playerBalance': 0,
             'session': new_sess[4],
         }
 
@@ -102,6 +103,7 @@ class Commands():
             return({'code': '400', 'message': 'Missing Parameters'})
         dealerCards = []
         playerCards = []
+        playerBet = 6
         for i in range(0, 2):
             dealerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
         for i in range(0, 2):
@@ -109,7 +111,8 @@ class Commands():
         # userId = self._db. handle_query(
         #     (command['session'],), 'getUserBySession')
         #mResponse = self._db.handleMutation(
-        #    (userId, str(uuid.uuid4()), dealerCards, playerCards ), 'blackjackCreateGame')
+        #    (userId, str(uuid.uuid4()), dealerCards, playerCards, playerBet ), 'blackjackCreateGame')
+        #update Player Balance to -= playerbet
         return {
             'code': '200',
             'gameSession': str(uuid.uuid4()),
@@ -133,8 +136,14 @@ class Commands():
         playerCards = []
         newCard = self._blackjackutil.getRandomCard(playerCards)
         playerCards.append(newCard)
+        playerBalance = 10
         bust = 'PLAYER BUST' if self._blackjackutil.getTotal(playerCards) > 21 else 'false'
-        print(newCard)
+        if bust:
+            #remove bet from playerBalance
+            pass
+        #mResponse = self._db.handleMutation(
+        #    (userId, str(uuid.uuid4()) ), 'getPlayerBalance')
+        
         return {
                 'code': '200',
                 'gameSession': sessionId,
@@ -143,6 +152,7 @@ class Commands():
                     'player': {
                         'cards': playerCards,
                         'total': self._blackjackutil.getTotal(playerCards),
+                        'playerBalance': playerBalance
                     },
                     'resultState': bust
                 }
@@ -160,23 +170,30 @@ class Commands():
         playerTotal = self._blackjackutil.getTotal(playerCards)
         dealerTotal = self._blackjackutil.getTotal(dealerCards)
         resultState = self._blackjackutil.getWinener(dealerTotal, playerTotal)
-        
+        playerBalance = 4
+        playerBet = 6 * 2
+        if resultState == 'dealer win' or 'player bust':
+            playerBet = 0
+        if resultState == 'draw':
+            playerBet = 6
+        playerBalance += playerBet
         return {
-                    'code': '200',
-                    'gameSession': sessionId,
-                    'head': 'blackjackStand',
-                    'game': {
-                        'dealer': {
-                            'cards': dealerCards,
-                            'total': self._blackjackutil.getTotal(dealerCards),
-                        },
-                        'player': {
-                            'cards': playerCards,
-                            'total': self._blackjackutil.getTotal(playerCards),
-                        },
-                        'resultState': str(resultState)
-                    }
+                'code': '200',
+                'gameSession': sessionId,
+                'head': 'blackjackStand',
+                'game': {
+                    'dealer': {
+                        'cards': dealerCards,
+                        'total': self._blackjackutil.getTotal(dealerCards),
+                    },
+                    'player': {
+                        'cards': playerCards,
+                        'total': self._blackjackutil.getTotal(playerCards),
+                        'playerBalance': playerBalance
+                    },
+                    'resultState': str(resultState)
                 }
+            }
     def logout(self, command):
         if not command['body']['username']:
             return({'code': '400', 'message': 'Missing Parameters'})
