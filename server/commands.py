@@ -9,28 +9,10 @@ class Commands():
         self._db = database
         self._blackjackutil = BlackjackUtility()
 
-    def create_user(self, command):
-        info_dict = {
-            "command": "create_user",
-            "params": 
-            #[command["body"]["firstname"], 
-            #command["body"]["lastname"], 
-            [command["body"]["username"], 
-            command["body"]["password"]]
-        }
-        return info_dict
-
-    def delete_user(self, command):
-        info_dict = {
-            "command": "delete_user",
-            "params": command["body"]["username"]
-        }
-        return info_dict
 
     def login(self, command):
         username = "\'"+command['body']['username']+"\'"
         new_sess = "\'"+str(uuid.uuid4())+"\'"
-
         if not command['body']['username'] or not command['body']['password']:
             return({'code': '400', 'message': 'Missing Parameters'})
         userId = self._db.handle_query(
@@ -42,7 +24,6 @@ class Commands():
             })
         password = self._db.handle_query(username, 'get_password')
         password = ''.join(password)
-        #print(f"\n{entered_password}\n")
         if password != command['body']['password']:
             return({
                 'code': '401',
@@ -51,7 +32,6 @@ class Commands():
         self._db.handle_update(
             (new_sess, username), 'update_session')
         player_balance = self._db.handle_query(username, 'get_balance')
-        #playerBalance = 10
         trimed_sess = self._db.trim_string(new_sess)
         return {
             'code': '200',
@@ -75,10 +55,6 @@ class Commands():
         new_sess_tuple = self._db.handle_query(
             username, 'get_user_by_username')
         new_sess = list(new_sess_tuple)
-
-        #newSess = self._db.handle_update(
-        #    (str(uuid.uuid4()), mResponse[1]), 'session')
-
         return {
             'code': '200',
             'session': new_sess[4],
