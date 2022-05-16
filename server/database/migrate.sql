@@ -13,8 +13,9 @@ create table users(
 
 
 create table games(
-    id integer primary key not null,
+    id integer primary key autoincrement not null,
     gameSession integer not null,
     playerCards text not null, 
-    dealerCards text not null
+    dealerCards text not null,
+    outcome text default null
 );
