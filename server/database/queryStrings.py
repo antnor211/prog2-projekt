@@ -1,16 +1,27 @@
 class queryStrings:
     def __init__(self) -> None:
         self.querys = {
-        "create_user": "INSERT INTO users(username, password, session, balance) VALUES({username}, {password}, {session}, {balance});",
-        "delete_user": "delete from users where username = {username};",
-        "get_password": "select password from users where username is {username};",
-        "update_session": "UPDATE users SET session={session} WHERE username={username};",
-        "get_balance": "SELECT balance FROM users WHERE username is {username};",
-        "blackjack_create_game": "INSERT INTO games(gameSession, playerCards, dealerCards) VALUES({session},{playerCards},{dealerCards});",
-        "update_password": "update users set password = {password} where username is {username};",
-        "get_user_by_username": "select * from users where username is {username};",
-        "get_user_by_session": "select * from users where session is {session};",
-        "fetch_game": "select * from games where id is {game_id}"
+        "get_password": "SELECT password FROM users WHERE username=?;",
+        "get_balance": "SELECT balance FROM users WHERE session=?;",
+        "get_user_by_username": "SELECT * FROM users WHERE username=?;",
+        "get_user_by_session": "SELECT * FROM users WHERE session=?;",
+        "fetch_game": "SELECT * FROM games WHERE gameSession=?"
+        }
+        
+        self.mutations = {
+            "create_user": "INSERT INTO users(username, password, session, balance) VALUES(?, ?, ?, ?);",
+            "blackjack_create_game": "INSERT INTO games(gameSession, playerCards, dealerCards, bet) VALUES(?,?,?,?);",
+        }
+        self.updates = {
+            "update_password": "UPDATE users SET password = ? WHERE username=?;",
+            "update_session": "UPDATE users SET session=? WHERE username=?;",
+            "update_player_cards": "UPDATE games SET playerCards=? WHERE gameSession=?;",
+            "update_player_balance": "UPDATE users SET balance=? WHERE session=?;"
+        }
+        self.deletes = {
+            "delete_user": "DELETE FROM users WHERE username=?;",
+            "delete_game": "DELETE FROM games WHERE gameSession=?"
+
         }
     def query(self, command) -> str:
         return self.querys[command]

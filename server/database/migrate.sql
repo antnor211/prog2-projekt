@@ -17,5 +17,6 @@ create table games(
     gameSession integer not null,
     playerCards text not null, 
     dealerCards text not null,
+    bet float not null,
     outcome text default null
 );

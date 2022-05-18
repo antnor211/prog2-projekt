@@ -55,9 +55,9 @@ class ClientScope():
         print('\n'*1)
         if result:
             color = 'green'
-            if result == 'dealer win' or 'player bust':
+            if result == 'DEALER WIN' or 'PLAYER BUST':
                 color = 'red'
-            if result == 'draw':
+            if result == 'DRAW':
                 color = 'yellow'
             print(termcolor.colored('-'*10 + result + '-'*10, color))
 
@@ -199,6 +199,8 @@ class ClientScope():
             gameInstance.newPlayerCards(createResponse['game']['player']['cards'])
             gameInstance.newDealerTotal(createResponse['game']['dealer']['total'])
             gameInstance.newPlayerTotal(createResponse['game']['player']['total'])
+            if createResponse['game']['resultState'] == 'BLACKJACK 21!':
+                gameInstance.newResult(actionResponse['game']['resultState'])
         else: 
             self.currentFrame = self.menu
 
@@ -209,7 +211,7 @@ class ClientScope():
                 if actionResponse['code'] == '200' and actionResponse['head'] == 'blackjackHit':
                     gameInstance.newPlayerCards(actionResponse['game']['player']['cards'])
                     gameInstance.newPlayerTotal(actionResponse['game']['player']['total'])
-                    if actionResponse['game']['resultState'] == 'bust':
+                    if actionResponse['game']['resultState'] == 'PLAYER BUST':
                         gameInstance.newResult(actionResponse['game']['resultState'])
                         self._playerBalance = actionResponse['game']['player']['playerBalance']
                 
