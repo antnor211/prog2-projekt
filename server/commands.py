@@ -1,6 +1,7 @@
 from hashlib import new
 from operator import imod
 import uuid
+import json
 
 from requests import session
 import database.queryStrings as q_strings
@@ -33,9 +34,13 @@ class Commands():
             })
         self._db.handle_update(
             (new_sess, username), 'update_session')
+
         player_balance = self._db.handle_query(username, 'get_balance')
-        player_balance = ''.join(player_balance)
+        print('got here 1')
+        player_balance = ''.join(str(player_balance[0]))
         trimed_sess = self._db.trim_string(new_sess)
+        print('got here 2')
+
         return {
             'code': '200',
             'session': trimed_sess,
@@ -54,7 +59,7 @@ class Commands():
         if len(user_id) != 0:
             return({'code': '400', 'message': 'Username Taken'})
         self._db.handle_mutation(
-            [username, password, session], 'create_user')
+            [username, password, session, 100], 'create_user')
         new_sess_tuple = self._db.handle_query(
             username, 'get_user_by_username')
         new_sess = list(new_sess_tuple)
@@ -111,16 +116,14 @@ class Commands():
             dealerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
         for i in range(0, 2):
             playerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
-        dealer_cards = ""
-        for card in dealerCards:
-            dealer_cards += card.getCard()
-        player_cards = ""
-        for card in playerCards:
-            player_cards += card.getCard()
+        print(session)
         user = self._db.handle_session_query(
             session, 'get_user_by_session')
+        print(user)
+        #load payload = json.loads(data.decode('utf-8'))
+        #send json.dumps(response).encode()
         self._db.handle_mutation_bj(
-            [user[4], player_cards, dealer_cards], 'blackjack_create_game')
+            [user[4], json.dumps(playerCards).encode(), json.dumps(dealerCards).encode()], 'blackjack_create_game')
         return {
             'code': '200',
             'gameSession': str(uuid.uuid4()),
@@ -141,7 +144,11 @@ class Commands():
             return({'code': '400', 'message': 'Missing Parameters'})
         sessionId = command['body']['gameSession']
         #addCheck when db is up and running
-        playerCards = []
+        game = self._db.handle_session_query(
+            sessionId, 'fetch_game')
+        print(game)
+        playerCards = self._db.handle_session_query(
+            session, 'get_user_by_session')
         newCard = self._blackjackutil.getRandomCard(playerCards)
         playerCards.append(newCard)
         bust = 'PLAYER BUST' if self._blackjackutil.getTotal(playerCards) > 21 else 'false'

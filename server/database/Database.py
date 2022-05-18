@@ -28,7 +28,9 @@ class Database(Action):
         try:
             data = self._cur.execute(query)
             data = data.fetchall()
+            print(data)
             to_return = list(data[0])
+            print('hanged')
             print(f"\n{data[0]}\n")
         except:
             to_return = ""
@@ -39,7 +41,8 @@ class Database(Action):
         query = self.q.query(command).format(
             username=params[0],
             password=params[1],
-            session=params[2]
+            session=params[2],
+            balance=params[3]
         )
         #values = (params[0], params[1], params[2])
         #print(query)
@@ -60,7 +63,7 @@ class Database(Action):
             print("\nSomething went wrong\n")
     
     def handle_update(self, params, command):
-        query = self.q.query(command).format(username=params[0], session=params[1])
+        query = self.q.query(command).format(session=params[0], username=params[1])
         try:
             self._cur.execute(query)
             self._con.commit()
@@ -69,6 +72,7 @@ class Database(Action):
             print("\nSomething went wrong\n")
 
     def handle_mutation_bj(self, params, command):
+        print('session', params[0])
         query = self.q.query(command).format(
             session=params[0], 
             playerCards=params[1], 
@@ -78,7 +82,8 @@ class Database(Action):
             self._cur.execute(query)
             self._con.commit()
             print("done")
-        except:
+        except Exception as e:
+            print(e)
             print("\nSomething went wrong\n")
 
 

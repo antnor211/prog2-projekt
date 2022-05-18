@@ -13,6 +13,5 @@ class Action:
         self._con.close()
 
     def trim_string(self, string):
-        string.removesuffix("+\'")
-        string.removeprefix("\'+")
-        return string 
+        s = string[1:-1]
+        return s 

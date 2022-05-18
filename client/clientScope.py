@@ -33,6 +33,7 @@ class ClientScope():
             try:
                 choice = int(choice)
             except:
+                print('exception reached')
                 break
         return choice
 
@@ -99,7 +100,7 @@ class ClientScope():
         print('response', response)
         if response['code'] == '200':
             self._session = response['session']
-            self._playerBalance = response['playerBalance']
+            self._playerBalance = float(response['playerBalance'])
             self.currentFrame = self.menu
         else:
             self._failedLogin = True
@@ -139,7 +140,7 @@ class ClientScope():
         if response['code'] == '200':
             print(response)
             self._session = response['session']
-            self._playerBalance = response['playerBalance']
+            self._playerBalance = float(response['playerBalance'])
             self.currentFrame = self.menu
 
     def menu(self):
@@ -181,6 +182,7 @@ class ClientScope():
         playerBet = getBetBalance()  
         gameInstance = BlackJack()
         gameInstance.addPlayerBet(playerBet)
+        print(self._session)
         p = {
             'head': 'blackjackCreateGame',
             'body': {
