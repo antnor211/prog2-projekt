@@ -144,6 +144,8 @@ class ClientScope():
 
     def menu(self):
         self._page('MENU')
+        print('WELCOME ' + termcolor.colored(str(self._username), 'green') + '\n')
+
         print('PLAYER BALANCE: ' + termcolor.colored(str(self._playerBalance), 'green') + '\n')
         print('[0] Play Blackjack')
         print('[1] Settings')
