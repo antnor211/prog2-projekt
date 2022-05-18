@@ -1,6 +1,8 @@
 from hashlib import new
 from operator import imod
 import uuid
+
+from requests import session
 import database.queryStrings as q_strings
 from server.blackjackUtil import BlackjackUtility
 
@@ -9,28 +11,10 @@ class Commands():
         self._db = database
         self._blackjackutil = BlackjackUtility()
 
-    def create_user(self, command):
-        info_dict = {
-            "command": "create_user",
-            "params": 
-            #[command["body"]["firstname"], 
-            #command["body"]["lastname"], 
-            [command["body"]["username"], 
-            command["body"]["password"]]
-        }
-        return info_dict
-
-    def delete_user(self, command):
-        info_dict = {
-            "command": "delete_user",
-            "params": command["body"]["username"]
-        }
-        return info_dict
 
     def login(self, command):
         username = "\'"+command['body']['username']+"\'"
         new_sess = "\'"+str(uuid.uuid4())+"\'"
-
         if not command['body']['username'] or not command['body']['password']:
             return({'code': '400', 'message': 'Missing Parameters'})
         userId = self._db.handle_query(
@@ -42,7 +26,6 @@ class Commands():
             })
         password = self._db.handle_query(username, 'get_password')
         password = ''.join(password)
-        #print(f"\n{entered_password}\n")
         if password != command['body']['password']:
             return({
                 'code': '401',
@@ -51,7 +34,7 @@ class Commands():
         self._db.handle_update(
             (new_sess, username), 'update_session')
         player_balance = self._db.handle_query(username, 'get_balance')
-        #playerBalance = 10
+        player_balance = ''.join(player_balance)
         trimed_sess = self._db.trim_string(new_sess)
         return {
             'code': '200',
@@ -75,14 +58,10 @@ class Commands():
         new_sess_tuple = self._db.handle_query(
             username, 'get_user_by_username')
         new_sess = list(new_sess_tuple)
-
-        #newSess = self._db.handle_update(
-        #    (str(uuid.uuid4()), mResponse[1]), 'session')
-
         return {
             'code': '200',
-            'playerBalance': 0,
             'session': new_sess[4],
+            'playerBalance': 100
         }
 
     def deleteUser(self, command):
@@ -123,20 +102,25 @@ class Commands():
         }
 
     def blackjackCreateGame(self, command):
+        session = "\'"+command['session']+"\'"
         if not command['session']:
             return({'code': '400', 'message': 'Missing Parameters'})
         dealerCards = []
         playerCards = []
-        playerBet = 6
         for i in range(0, 2):
             dealerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
         for i in range(0, 2):
             playerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
-        # userId = self._db. handle_query(
-        #     (command['session'],), 'getUserBySession')
-        #mResponse = self._db.handleMutation(
-        #    (userId, str(uuid.uuid4()), dealerCards, playerCards, playerBet ), 'blackjackCreateGame')
-        #update Player Balance to -= playerbet
+        dealer_cards = ""
+        for card in dealerCards:
+            dealer_cards += card.getCard()
+        player_cards = ""
+        for card in playerCards:
+            player_cards += card.getCard()
+        user = self._db.handle_session_query(
+            session, 'get_user_by_session')
+        self._db.handle_mutation_bj(
+            [user[4], player_cards, dealer_cards], 'blackjack_create_game')
         return {
             'code': '200',
             'gameSession': str(uuid.uuid4()),
@@ -160,14 +144,8 @@ class Commands():
         playerCards = []
         newCard = self._blackjackutil.getRandomCard(playerCards)
         playerCards.append(newCard)
-        playerBalance = 10
         bust = 'PLAYER BUST' if self._blackjackutil.getTotal(playerCards) > 21 else 'false'
-        if bust:
-            #remove bet from playerBalance
-            pass
-        #mResponse = self._db.handleMutation(
-        #    (userId, str(uuid.uuid4()) ), 'getPlayerBalance')
-        
+        print(newCard)
         return {
                 'code': '200',
                 'gameSession': sessionId,
@@ -176,56 +154,54 @@ class Commands():
                     'player': {
                         'cards': playerCards,
                         'total': self._blackjackutil.getTotal(playerCards),
-                        'playerBalance': playerBalance
                     },
                     'resultState': bust
                 }
             }
+
+        
     def blackjackStand(self, command):
         if not command['body']['gameSession'] and not command['session']:
             return({'code': '400', 'message': 'Missing Parameters'}) 
         sessionId = command['body']['gameSession']
-        #FIX hookup to db
+        # TODO FIX hookup to db
         dealerCards = []
         playerCards = []
         while self._blackjackutil.getTotal(dealerCards) <= 17 :
             dealerCards.append(self._blackjackutil.getRandomCard(dealerCards))
-        
         playerTotal = self._blackjackutil.getTotal(playerCards)
         dealerTotal = self._blackjackutil.getTotal(dealerCards)
         resultState = self._blackjackutil.getWinener(dealerTotal, playerTotal)
-        playerBalance = 4
-        playerBet = 6 * 2
-        if resultState == 'dealer win' or 'player bust':
-            playerBet = 0
-        if resultState == 'draw':
-            playerBet = 6
-        playerBalance += playerBet
+        
         return {
-                'code': '200',
-                'gameSession': sessionId,
-                'head': 'blackjackStand',
-                'game': {
-                    'dealer': {
-                        'cards': dealerCards,
-                        'total': self._blackjackutil.getTotal(dealerCards),
-                    },
-                    'player': {
-                        'cards': playerCards,
-                        'total': self._blackjackutil.getTotal(playerCards),
-                        'playerBalance': playerBalance
-                    },
-                    'resultState': str(resultState)
+                    'code': '200',
+                    'gameSession': sessionId,
+                    'head': 'blackjackStand',
+                    'game': {
+                        'dealer': {
+                            'cards': dealerCards,
+                            'total': self._blackjackutil.getTotal(dealerCards),
+                        },
+                        'player': {
+                            'cards': playerCards,
+                            'total': self._blackjackutil.getTotal(playerCards),
+                        },
+                        'resultState': str(resultState)
+                    }
                 }
-            }
     def logout(self, command):
         if not command['body']['username']:
             return({'code': '400', 'message': 'Missing Parameters'})
-        userId = self._db. handle_query(
+        userId = self._db.handle_query(
             (command['body']['username'],), ' get_user_by_username')
         if len(userId) == 0:
-            return({'code': '400', 'message': 'Username Does not match any records'})
-        self._db.handleUpdate(
+            return(
+                {
+                    'code': '400', 
+                    'message': 'Username Does not match any records'
+                }
+                )
+        self._db.handle_update(
             (str(uuid.uuid4()), userId[0][0]), 'session')
 
     def handleCommand(self, command):

@@ -6,15 +6,16 @@ PRAGMA foreign_keys = on;
 create table users(
     id integer primary key autoincrement not null,
     username text not null,
-    balance float default 0.0,
+    balance float default 100.0,
     password text not null,
     session text 
 );
 
 
 create table games(
-    id integer primary key not null,
+    id integer primary key autoincrement not null,
     gameSession integer not null,
     playerCards text not null, 
-    dealerCards text not null
+    dealerCards text not null,
+    outcome text default null
 );
