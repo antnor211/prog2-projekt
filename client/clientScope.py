@@ -14,6 +14,7 @@ import base64
 import argparse
 
 from client.blackjack.blackjack import BlackJack
+from client.optionInput import OptionInput
 
 class ClientScope():
     def __init__(self, sock, username, password):
@@ -23,19 +24,6 @@ class ClientScope():
         self._username = username
         self._password = password
         self._failedLogin = False
-
-    def _optionInput(self, mess, start, end):
-        choice = -1
-
-        while choice < start or choice > end:
-            choice = input('\n[{}-{}] '.format(start, end) +
-                           termcolor.colored(mess, 'green'))
-            try:
-                choice = int(choice)
-            except:
-                print('exception reached')
-                break
-        return choice
 
     def _page(self, title):
         os.system('clear')
@@ -66,7 +54,7 @@ class ClientScope():
         print('[0] Login with existing account')
         print('[1] Create new account')
 
-        choice = self._optionInput('Choose Option ', 0, 1)
+        choice = OptionInput('Choose Option ', 0, 1).getChoice()
         self.currentFrame = self.login if choice == 0 else self.createAccount
         self.currentFrame()
         return False
@@ -150,7 +138,7 @@ class ClientScope():
         print('PLAYER BALANCE: ' + termcolor.colored(str(self._playerBalance), 'green') + '\n')
         print('[0] Play Blackjack')
         print('[1] Settings')
-        choice = self._optionInput('Choose Option ', 0, 1)
+        choice = OptionInput('Choose Option ', 0, 1).getChoice()
 
         if choice == 0:
             self.currentFrame = self.blackjack
@@ -161,7 +149,7 @@ class ClientScope():
         self._page('SETTINGS')
         print('[0] Change Password')
         print('[1] Delete Account')
-        choice = self._optionInput('Choose Option ', 0, 1)
+        choice = OptionInput('Choose Option ', 0, 1).getChoice()
 
         if choice == 0:
             self.currentFrame = self.changePassword
@@ -175,7 +163,7 @@ class ClientScope():
             while not validAmount:
                 print('PLAYER BALANCE: ' + termcolor.colored(str(self._playerBalance), 'green') + '\n')
                 print('How much would you like to bet?')
-                choice = self._optionInput('Choose Amount: ', 1, self._playerBalance)
+                choice = OptionInput('Choose Amount: ', 1, self._playerBalance).getChoice()
                 if not choice >= 1 and not choice <= self._playerBalance:
                     continue
                 return choice
@@ -229,7 +217,7 @@ class ClientScope():
                 print('[0] Hit')
                 print('[1] Stand')
                 
-                choice = int(self._optionInput('Choose Option ', 0, 1))
+                choice = int(OptionInput('Choose Option ', 0, 1).getChoice())
                 if choice != 0 and choice != 1:
                     continue
                 p = {
@@ -244,7 +232,7 @@ class ClientScope():
                 print('PLAYER BALANCE: ' + termcolor.colored(str(self._playerBalance), 'green') + '\n')
                 print('[0] New Game')
                 print('[1] Return To Main Menu')
-                choice = int(self._optionInput('Choose Option ', 0, 1))
+                choice = int(OptionInput('Choose Option ', 0, 1).getChoice())
                 if choice != 0 and choice != 1:
                     continue
                 if choice == 0:

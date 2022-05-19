@@ -1,6 +1,6 @@
 import sqlite3
 
-from server.database import queryStrings
+from server.database.DBStrings import DBStrings
 
 class Query:
     def __init__(self, db_path):
@@ -10,7 +10,7 @@ class Query:
 
 
     def create_user(self, username, password):
-        query = queryStrings.mutate["create_user"].format(
+        query = DBStrings.mutate["create_user"].format(
             username = username, 
             password = password)
         print(query)

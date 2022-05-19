@@ -1,11 +1,11 @@
-class queryStrings:
+class DBStrings:
     def __init__(self) -> None:
         self.querys = {
-        "get_password": "SELECT password FROM users WHERE username=?;",
-        "get_balance": "SELECT balance FROM users WHERE session=?;",
-        "get_user_by_username": "SELECT * FROM users WHERE username=?;",
-        "get_user_by_session": "SELECT * FROM users WHERE session=?;",
-        "fetch_game": "SELECT * FROM games WHERE gameSession=?"
+            "get_password": "SELECT password FROM users WHERE username=?;",
+            "get_balance": "SELECT balance FROM users WHERE session=?;",
+            "get_user_by_username": "SELECT * FROM users WHERE username=?;",
+            "get_user_by_session": "SELECT * FROM users WHERE session=?;",
+            "fetch_game": "SELECT * FROM games WHERE gameSession=?",
         }
         
         self.mutations = {
@@ -16,11 +16,11 @@ class queryStrings:
             "update_password": "UPDATE users SET password = ? WHERE username=?;",
             "update_session": "UPDATE users SET session=? WHERE username=?;",
             "update_player_cards": "UPDATE games SET playerCards=? WHERE gameSession=?;",
-            "update_player_balance": "UPDATE users SET balance=? WHERE session=?;"
+            "update_player_balance": "UPDATE users SET balance=? WHERE session=?;",
         }
         self.deletes = {
             "delete_user": "DELETE FROM users WHERE username=?;",
-            "delete_game": "DELETE FROM games WHERE gameSession=?"
+            "delete_game": "DELETE FROM games WHERE gameSession=?",
 
         }
     def query(self, command) -> str:

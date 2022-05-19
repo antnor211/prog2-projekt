@@ -3,7 +3,6 @@ from server.database.Action import Action
 
 from server.database.migrate import Migrate
 from server.database.query import Query
-import server.database.queryStrings as q_strings
 
 class Database(Action):
     def __init__(self, db_path):

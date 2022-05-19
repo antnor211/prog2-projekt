@@ -3,8 +3,6 @@ from operator import imod
 import uuid
 import json
 
-from requests import session
-import database.queryStrings as q_strings
 from server.blackjackUtil import BlackjackUtility
 
 class Commands():
