@@ -140,7 +140,7 @@ class Commands():
         if not command['body']['gameSession'] and not command['session']:
             return({'code': '400', 'message': 'Missing Parameters'})
         sessionId = command['body']['gameSession']
-        #addCheck when db is up and running
+        # addCheck when db is up and running
         playerCards = []
         newCard = self._blackjackutil.getRandomCard(playerCards)
         playerCards.append(newCard)
