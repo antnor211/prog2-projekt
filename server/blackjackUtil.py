@@ -17,7 +17,6 @@ class BlackjackUtility:
             return s
 
     def getRandomCard(self, drawn):
-        print('entered', drawn)
         def _getRandomCard():
             return math.floor(random.random()*52)
         r = 0
@@ -40,7 +39,6 @@ class BlackjackUtility:
                 uniqueCard = True
 
         cardValue = (r % 13) + 1
-        print('cardValue', cardValue)
         if cardValue == 1:
             cardValue = 'A'
         elif cardValue == 11:
@@ -87,4 +85,4 @@ class BlackjackUtility:
         if dealerTotal < playerTotal:
             return 'PLAYER WIN'
         if dealerTotal == playerTotal:
-            return 'DRAW' 
+            return 'DRAW'

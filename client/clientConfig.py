@@ -1,5 +1,5 @@
 import re
-
+import time
 class ClientConfig:
     def __init__(self):
         self._config = {
@@ -10,7 +10,7 @@ class ClientConfig:
         try:
             f = open('config.txt').readlines()
             username = re.split(r'username:', f[0][:-1])
-            password = re.split(r'password:', f[1][:-1])
+            password = re.split(r'password:', f[1])
             if len(username) != 1:
                 self._config['username'] = username[-1]
             else:

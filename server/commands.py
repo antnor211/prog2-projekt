@@ -1,9 +1,8 @@
 from hashlib import new
 from operator import imod
 import uuid
+import json
 
-from requests import session
-import database.queryStrings as q_strings
 from server.blackjackUtil import BlackjackUtility
 
 class Commands():
@@ -13,54 +12,52 @@ class Commands():
 
 
     def login(self, command):
-        username = "\'"+command['body']['username']+"\'"
-        new_sess = "\'"+str(uuid.uuid4())+"\'"
-        if not command['body']['username'] or not command['body']['password']:
+        username = command['body']['username']
+        new_sess = str(uuid.uuid4())
+        if not username or not command['body']['password']:
             return({'code': '400', 'message': 'Missing Parameters'})
-        userId = self._db.handle_query(
-            username, 'get_user_by_username')
+        userId = self._db.handleQuery(
+            (username,), 'get_user_by_username')
         if len(userId) == 0:
             return({
                 'code': '401',
                 'message': 'Username or password is incorrect'
             })
-        password = self._db.handle_query(username, 'get_password')
+        password = self._db.handleQuery((username), 'get_password')[0][0]
         password = ''.join(password)
         if password != command['body']['password']:
             return({
                 'code': '401',
                 'message': 'Username or password is incorrect'
             })
-        self._db.handle_update(
+        self._db.handleUpdate(
             (new_sess, username), 'update_session')
-        player_balance = self._db.handle_query(username, 'get_balance')
-        player_balance = ''.join(player_balance)
-        trimed_sess = self._db.trim_string(new_sess)
+        player_balance = self._db.handleQuery((new_sess,), 'get_balance')[0][0]
         return {
             'code': '200',
-            'session': trimed_sess,
+            'session': new_sess,
             'playerBalance': player_balance,
         }
 
     def createUser(self, command):
-        username = "\'" + command['body']['username'] + "\'"
-        password = "\'" + command['body']['password'] + "\'"
-        session = "\'"+str(uuid.uuid4())+"\'"
+        username = command['body']['username']
+        password = command['body']['password']
+        session = str(uuid.uuid4())
 
-        if not command['body']['username'] or not command['body']['password']:
+        if not username or not password:
             return({'code': '400', 'message': 'Missing Parameters'})
-        user_id = self._db.handle_query(
-            username, 'get_user_by_username')
-        if len(user_id) != 0:
+        print(username)
+        userId = self._db.handleQuery(
+            (username,), 'get_user_by_username')
+        
+        if len(userId) != 0:
             return({'code': '400', 'message': 'Username Taken'})
-        self._db.handle_mutation(
-            [username, password, session], 'create_user')
-        new_sess_tuple = self._db.handle_query(
-            username, 'get_user_by_username')
-        new_sess = list(new_sess_tuple)
+        self._db.handleMutation(
+            [username, password, session, 100], 'create_user')
+
         return {
             'code': '200',
-            'session': new_sess[4],
+            'session': session,
             'playerBalance': 100
         }
 
@@ -102,8 +99,9 @@ class Commands():
         }
 
     def blackjackCreateGame(self, command):
-        session = "\'"+command['session']+"\'"
-        if not command['session']:
+        session = command['session']
+        bet = command['body']['playerBet']
+        if not session or not bet:
             return({'code': '400', 'message': 'Missing Parameters'})
         dealerCards = []
         playerCards = []
@@ -111,16 +109,21 @@ class Commands():
             dealerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
         for i in range(0, 2):
             playerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
-        dealer_cards = ""
-        for card in dealerCards:
-            dealer_cards += card.getCard()
-        player_cards = ""
-        for card in playerCards:
-            player_cards += card.getCard()
-        user = self._db.handle_session_query(
-            session, 'get_user_by_session')
-        self._db.handle_mutation_bj(
-            [user[4], player_cards, dealer_cards], 'blackjack_create_game')
+        print(session)
+        user = self._db.handleQuery(
+            (session,), 'get_user_by_session')[0]
+        resultState = 'false'
+        if self._blackjackutil.getTotal(playerCards) == 21:
+            resultState = 'BLACKJACK 21!'
+            newTotal = playerBalance + bet * 2.5
+            self._db.handleUpdate(
+                (newTotal, session,), 'update_player_balance')
+            playerBalance = newTotal
+            self._db.handleDelete(
+                (session,), 'delete_game')
+        
+        self._db.handleMutation(
+            (user[4], json.dumps(playerCards).encode(), json.dumps(dealerCards).encode(), bet), 'blackjack_create_game')
         return {
             'code': '200',
             'gameSession': str(uuid.uuid4()),
@@ -132,28 +135,49 @@ class Commands():
                 'player': {
                     'cards': playerCards,
                     'total': self._blackjackutil.getTotal(playerCards),
-                }
+                },
+                'resultState': resultState
             }
         }
 
     def blackjackHit(self, command):
-        if not command['body']['gameSession'] and not command['session']:
+        session = command['session']
+        if not session:
             return({'code': '400', 'message': 'Missing Parameters'})
-        sessionId = command['body']['gameSession']
-        # addCheck when db is up and running
-        playerCards = []
+        #addCheck when db is up and running
+        game = self._db.handleQuery(
+            (session,), 'fetch_game')[0]
+        playerCards = json.loads(game[2].decode('utf-8'))
         newCard = self._blackjackutil.getRandomCard(playerCards)
-        playerCards.append(newCard)
-        bust = 'PLAYER BUST' if self._blackjackutil.getTotal(playerCards) > 21 else 'false'
         print(newCard)
+        playerCards.append(newCard)
+        print('playerCards', playerCards)
+        playerBalance = self._db.handleQuery(
+                (session,), 'get_balance')[0][0]
+        
+        self._db.handleUpdate(
+            (json.dumps(playerCards).encode(), session,), 'update_player_cards')
+        
+        bust = 'false'
+        if self._blackjackutil.getTotal(playerCards) > 21:
+            bust = 'PLAYER BUST'
+            bet = game[4]
+            newTotal = playerBalance - bet
+            self._db.handleUpdate(
+                (newTotal, session,), 'update_player_balance')
+            playerBalance = newTotal
+            self._db.handleDelete(
+                (session,), 'delete_game')
+
         return {
                 'code': '200',
-                'gameSession': sessionId,
+                'gameSession': session,
                 'head': 'blackjackHit',
                 'game': {
                     'player': {
                         'cards': playerCards,
                         'total': self._blackjackutil.getTotal(playerCards),
+                        'playerBalance': playerBalance
                     },
                     'resultState': bust
                 }
@@ -161,21 +185,40 @@ class Commands():
 
         
     def blackjackStand(self, command):
-        if not command['body']['gameSession'] and not command['session']:
+        session = command['session']
+        if not session:
             return({'code': '400', 'message': 'Missing Parameters'}) 
-        sessionId = command['body']['gameSession']
         # TODO FIX hookup to db
-        dealerCards = []
-        playerCards = []
+        game = self._db.handleQuery(
+            (session,), 'fetch_game')[0]
+        playerCards = json.loads(game[2].decode('utf-8'))
+        dealerCards = json.loads(game[3].decode('utf-8'))
+        playerBalance = self._db.handleQuery(
+                (session,), 'get_balance')[0][0]
+        
         while self._blackjackutil.getTotal(dealerCards) <= 17 :
             dealerCards.append(self._blackjackutil.getRandomCard(dealerCards))
         playerTotal = self._blackjackutil.getTotal(playerCards)
         dealerTotal = self._blackjackutil.getTotal(dealerCards)
         resultState = self._blackjackutil.getWinener(dealerTotal, playerTotal)
-        
+        if resultState == 'DEALER BUST' or resultState == 'PLAYER WIN':
+            bet = game[4]
+            newTotal = playerBalance + bet * 2
+            self._db.handleUpdate(
+                (newTotal, session,), 'update_player_balance')
+            playerBalance = newTotal
+        elif resultState == 'DEALER WIN':
+            bet = game[4]
+            newTotal = playerBalance - bet 
+            self._db.handleUpdate(
+                (newTotal, session,), 'update_player_balance')
+            playerBalance = newTotal
+        self._db.handleDelete(
+                (session,), 'delete_game')
+
         return {
                     'code': '200',
-                    'gameSession': sessionId,
+                    'gameSession': session,
                     'head': 'blackjackStand',
                     'game': {
                         'dealer': {
@@ -185,6 +228,7 @@ class Commands():
                         'player': {
                             'cards': playerCards,
                             'total': self._blackjackutil.getTotal(playerCards),
+                            'playerBalance': playerBalance,
                         },
                         'resultState': str(resultState)
                     }
