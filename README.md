@@ -2,6 +2,8 @@
 
 Anton Norman och Caspian Mörling
 
+Blackjack game that saves your login information and balance. If you run out of balance, just create a new account ;).
+
 ## Requirements
 
 ### Python and PIP
