@@ -9,10 +9,20 @@ from socketServer import SocketServer
 from commands import Commands
 from database.Database import Database
 from server.database.migrate import Migrate
+from server.serverArgParser import ServerArgParser
 
 
 if __name__ == "__main__":
-    with SocketServer("localhost", 8000) as ss:
+
+    cap = ServerArgParser()
+    dbClean = cap.getArguments().c
+    targetPort = cap.getArguments().p
+
+    if dbClean:
+        mig = Migrate("server/database/database.db")
+        mig.migrateData()
+    
+    with SocketServer("localhost", targetPort) as ss:
         with Database("server/database/database.db")as db:
             comamnds = Commands(db)
             while True:
