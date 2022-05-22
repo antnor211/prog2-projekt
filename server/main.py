@@ -14,9 +14,9 @@ from server.serverArgParser import ServerArgParser
 
 if __name__ == "__main__":
 
-    cap = ServerArgParser()
-    dbClean = cap.getArguments().c
-    targetPort = cap.getArguments().p
+    sap = ServerArgParser()
+    dbClean = sap.getArguments().c
+    targetPort = sap.getArguments().p
 
     if dbClean:
         mig = Migrate("server/database/database.db")
