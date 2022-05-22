@@ -197,7 +197,7 @@ class Commands():
         playerBalance = self._db.handleQuery(
                 (session,), 'getBalance')[0][0]
         
-        while self._blackjackutil.getTotal(dealerCards) <= 17 :
+        while self._blackjackutil.getTotal(dealerCards) < 17 :
             dealerCards.append(self._blackjackutil.getRandomCard(dealerCards))
         playerTotal = self._blackjackutil.getTotal(playerCards)
         dealerTotal = self._blackjackutil.getTotal(dealerCards)
