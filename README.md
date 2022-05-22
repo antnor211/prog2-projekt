@@ -1,6 +1,6 @@
 # Slutprojekt Programmering 2
 
-Anton Norman, Caspian Mörling
+Anton Norman och Caspian Mörling
 
 ## Requirements
 
