@@ -13,17 +13,17 @@ class Commands():
 
     def login(self, command):
         username = command['body']['username']
-        new_sess = str(uuid.uuid4())
+        session = str(uuid.uuid4())
         if not username or not command['body']['password']:
             return({'code': '400', 'message': 'Missing Parameters'})
         userId = self._db.handleQuery(
-            (username,), 'get_user_by_username')
+            (username,), 'getUserByUsername')
         if len(userId) == 0:
             return({
                 'code': '401',
                 'message': 'Username or password is incorrect'
             })
-        password = self._db.handleQuery((username), 'get_password')[0][0]
+        password = self._db.handleQuery((username), 'getPassword')[0][0]
         password = ''.join(password)
         if password != command['body']['password']:
             return({
@@ -31,11 +31,11 @@ class Commands():
                 'message': 'Username or password is incorrect'
             })
         self._db.handleUpdate(
-            (new_sess, username), 'update_session')
-        player_balance = self._db.handleQuery((new_sess,), 'get_balance')[0][0]
+            (session, username), 'updateSession')
+        player_balance = self._db.handleQuery((session,), 'getBalance')[0][0]
         return {
             'code': '200',
-            'session': new_sess,
+            'session': session,
             'playerBalance': player_balance,
         }
 
@@ -48,12 +48,12 @@ class Commands():
             return({'code': '400', 'message': 'Missing Parameters'})
         print(username)
         userId = self._db.handleQuery(
-            (username,), 'get_user_by_username')
+            (username,), 'getUserByUsername')
         
         if len(userId) != 0:
             return({'code': '400', 'message': 'Username Taken'})
         self._db.handleMutation(
-            [username, password, session, 100], 'create_user')
+            [username, password, session, 100], 'createUser')
 
         return {
             'code': '200',
@@ -67,7 +67,7 @@ class Commands():
         if not command['body']['username'] or not command['session']:
             return({'code': '400', 'message': 'Missing Parameters'})
         userId = self._db.handle_query(
-            username, 'get_user_by_username')
+            username, 'getUserByUsername')
         if len(userId) == 0:
             return({'code': '400', 'message': 'Username Does not match any records'})
         #session = self._db.handle_query(
@@ -75,7 +75,7 @@ class Commands():
         #if session[0][0] != command['session']:
         #    return({'code': '401', 'message': 'No session established'})
         self._db.handle_deletion(
-            username, 'delete_user')
+            username, 'deleteUser')
         return {
             'code': '200',
         }
@@ -84,7 +84,7 @@ class Commands():
         if not command['body']['username'] or not command['session'] or not command['body']['newPassword']:
             return({'code': '400', 'message': 'Missing Parameters'})
         userId = self._db. handle_query(
-            (command['body']['username'],), ' get_user_by_username')
+            (command['body']['username'],), ' getUserByUsername')
         if len(userId) == 0:
             return({'code': '400', 'message': 'Username Does not match any records'})
         session = self._db. handle_query(
@@ -111,19 +111,20 @@ class Commands():
             playerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
         print(session)
         user = self._db.handleQuery(
-            (session,), 'get_user_by_session')[0]
+            (session,), 'getUserBySession')[0]
         resultState = 'false'
+        self._db.handleMutation(
+            (user[4], json.dumps(playerCards).encode(), json.dumps(dealerCards).encode(), bet), 'blackjackCreateGame')
         if self._blackjackutil.getTotal(playerCards) == 21:
             resultState = 'BLACKJACK 21!'
             newTotal = playerBalance + bet * 2.5
             self._db.handleUpdate(
-                (newTotal, session,), 'update_player_balance')
+                (newTotal, session,), 'updatePlayerBalance')
             playerBalance = newTotal
             self._db.handleDelete(
-                (session,), 'delete_game')
+                (session,), 'deleteGame')
         
-        self._db.handleMutation(
-            (user[4], json.dumps(playerCards).encode(), json.dumps(dealerCards).encode(), bet), 'blackjack_create_game')
+        
         return {
             'code': '200',
             'gameSession': str(uuid.uuid4()),
@@ -146,17 +147,17 @@ class Commands():
             return({'code': '400', 'message': 'Missing Parameters'})
         #addCheck when db is up and running
         game = self._db.handleQuery(
-            (session,), 'fetch_game')[0]
+            (session,), 'fetchGame')[0]
         playerCards = json.loads(game[2].decode('utf-8'))
         newCard = self._blackjackutil.getRandomCard(playerCards)
         print(newCard)
         playerCards.append(newCard)
         print('playerCards', playerCards)
         playerBalance = self._db.handleQuery(
-                (session,), 'get_balance')[0][0]
+                (session,), 'getBalance')[0][0]
         
         self._db.handleUpdate(
-            (json.dumps(playerCards).encode(), session,), 'update_player_cards')
+            (json.dumps(playerCards).encode(), session,), 'updatePlayerCards')
         
         bust = 'false'
         if self._blackjackutil.getTotal(playerCards) > 21:
@@ -164,10 +165,10 @@ class Commands():
             bet = game[4]
             newTotal = playerBalance - bet
             self._db.handleUpdate(
-                (newTotal, session,), 'update_player_balance')
+                (newTotal, session,), 'updatePlayerBalance')
             playerBalance = newTotal
             self._db.handleDelete(
-                (session,), 'delete_game')
+                (session,), 'deleteGame')
 
         return {
                 'code': '200',
@@ -190,11 +191,11 @@ class Commands():
             return({'code': '400', 'message': 'Missing Parameters'}) 
         # TODO FIX hookup to db
         game = self._db.handleQuery(
-            (session,), 'fetch_game')[0]
+            (session,), 'fetchGame')[0]
         playerCards = json.loads(game[2].decode('utf-8'))
         dealerCards = json.loads(game[3].decode('utf-8'))
         playerBalance = self._db.handleQuery(
-                (session,), 'get_balance')[0][0]
+                (session,), 'getBalance')[0][0]
         
         while self._blackjackutil.getTotal(dealerCards) <= 17 :
             dealerCards.append(self._blackjackutil.getRandomCard(dealerCards))
@@ -205,16 +206,16 @@ class Commands():
             bet = game[4]
             newTotal = playerBalance + bet * 2
             self._db.handleUpdate(
-                (newTotal, session,), 'update_player_balance')
+                (newTotal, session,), 'updatePlayerBalance')
             playerBalance = newTotal
         elif resultState == 'DEALER WIN':
             bet = game[4]
             newTotal = playerBalance - bet 
             self._db.handleUpdate(
-                (newTotal, session,), 'update_player_balance')
+                (newTotal, session,), 'updatePlayerBalance')
             playerBalance = newTotal
         self._db.handleDelete(
-                (session,), 'delete_game')
+                (session,), 'deleteGame')
 
         return {
                     'code': '200',
@@ -237,7 +238,7 @@ class Commands():
         if not command['body']['username']:
             return({'code': '400', 'message': 'Missing Parameters'})
         userId = self._db.handle_query(
-            (command['body']['username'],), ' get_user_by_username')
+            (command['body']['username'],), ' getUserByUsername')
         if len(userId) == 0:
             return(
                 {
