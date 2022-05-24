@@ -35,7 +35,7 @@ Note databse must be reset first time running.
 Connect to server and start the client.
 Run the client with the ip and port of the server to establish a connection, then log in with your credentials and start playing balackjack. You can save your credentials in config.txt.
 
-usage: client.py [-h] [-i IP] [-p Port]
+usage: python3 client.py [-h] [-i IP] [-p Port]
 
 ## TODO
 
