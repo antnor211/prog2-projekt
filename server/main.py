@@ -2,7 +2,6 @@ import ssl
 import sys
 import os
 import json
-from tkinter import E
 
 sys.path.append(os.getcwd())
 
@@ -10,11 +9,21 @@ from socketServer import SocketServer
 from commands import Commands
 from database.Database import Database
 from server.database.migrate import Migrate
+from server.serverArgParser import ServerArgParser
 
 
 if __name__ == "__main__":
-    with SocketServer("localhost", 8000) as ss:
-        with Database("database.db")as db:
+
+    sap = ServerArgParser()
+    dbClean = sap.getArguments().c
+    targetPort = sap.getArguments().p
+
+    if dbClean:
+        mig = Migrate("server/database/database.db")
+        mig.migrateData()
+    
+    with SocketServer("localhost", targetPort) as ss:
+        with Database("server/database/database.db")as db:
             comamnds = Commands(db)
             while True:
                 connector, address = ss.accept()

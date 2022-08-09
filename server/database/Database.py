@@ -1,38 +1,34 @@
-from distutils.log import INFO, info
 import sqlite3
 from server.database.Action import Action
 
 from server.database.migrate import Migrate
 from server.database.query import Query
-import server.database.queryStrings as q_strings
 
 class Database(Action):
     def __init__(self, db_path):
         Action.__init__(self, db_path)
 
-    def handle_migration(self, path):
-        migration = Migrate(path)
-        migration.migrate_data()
+    def handleMutation(self, mutationTuple, mutationType):
+        self._cur.execute(self.q.mutations[mutationType], mutationTuple)
+        self._con.commit()
+        return mutationTuple
 
-    def handle_mutation(self, info_dict):
-        str_to_exec = q_strings.mutate[info_dict["command"]].format(
-            info_dict["params"]
-        )
-        self._cur.execute(str_to_exec)
+    def handleQuery(self, queryTuple, queryType):
+        print(queryTuple)
+        self._cur.execute(self.q.querys[queryType], queryTuple)
 
-    def handle_update(self, info_dict):
-        str_to_exec = q_strings.update[info_dict["command"]].format(
-            info_dict["params"]
-        )
-        self._cur.execute(str_to_exec)
+        rRows = self._cur.fetchall()
+        return rRows
 
-    def handle_fetch(self, info_dict):
-        str_to_exec = q_strings.fetch[info_dict["command"]].format(
-            info_dict["params"]
-        )
-        self._cur.execute(str_to_exec)
-
-
+    def handleUpdate(self, udpateTuple, updateType):
+        self._cur.execute(self.q.updates[updateType], udpateTuple)
+        self._con.commit()
+        return udpateTuple
+    
+    def handleDelete(self, mutationTuple, mutationType):
+        self._cur.execute(self.q.deletes[mutationType], mutationTuple)
+        self._con.commit()
+        return mutationTuple
     def __enter__(self):
         return self
 

@@ -7,7 +7,9 @@ class BlackJack:
 
         self._playerTotal = 0
         self._dealerTotal = 0
-    
+
+        self._playerBet = 0
+        self._result = False
 
     def getPlayerCards(self):
         return self._playerCards 
@@ -27,14 +29,30 @@ class BlackJack:
     def newPlayerTotal(self, total):
         self._playerTotal = total
         
-    def addPlayerCard(self, card):
-        newCard = Card(card).getCard()
-        self._playerCards.append(newCard)
+    def newPlayerCards(self, cards):
+        self._playerCards = []
+        for card in cards:
+            newCard = Card(card).getCard()
+            self._playerCards.append(newCard)
     
-    def addDealerCard(self, card):
-        newCard = Card(card).getCard()
-        self._dealerCards.append(newCard)
-
+    def newDealerCards(self, cards):
+        self._dealerCards = []
+        for card in cards:
+            newCard = Card(card).getCard()
+            self._dealerCards.append(newCard)
+    
+    def newResult(self, result):
+        self._result = result
+    
+    def getResult(self):
+        return self._result
+    
+    def addPlayerBet(self, playerBet):
+        self._playerBet = playerBet
+    
+    def getPlayerBet(self):
+        return self._playerBet
+    
     def getFormattedPlayerCards(self):
         cardsString = ''
         for line in range(0, 7):

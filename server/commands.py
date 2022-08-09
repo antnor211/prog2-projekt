@@ -1,6 +1,8 @@
+from hashlib import new
 from operator import imod
 import uuid
-import database.queryStrings as q_strings
+import json
+
 from server.blackjackUtil import BlackjackUtility
 
 class Commands():
@@ -8,81 +10,76 @@ class Commands():
         self._db = database
         self._blackjackutil = BlackjackUtility()
 
-    def create_user(self, command):
-        info_dict = {
-            "command": "create_user",
-            "params": 
-            #[command["body"]["firstname"], 
-            #command["body"]["lastname"], 
-            [command["body"]["username"], 
-            command["body"]["password"]]
-        }
-        return info_dict
-
-    def delete_user(self, command):
-        info_dict = {
-            "command": "delete_user",
-            "params": command["body"]["username"]
-        }
-        return info_dict
 
     def login(self, command):
-
-        if not command['body']['username'] or not command['body']['password']:
+        username = command['body']['username']
+        session = str(uuid.uuid4())
+        if not username or not command['body']['password']:
             return({'code': '400', 'message': 'Missing Parameters'})
-
-        # userId = self._db.handleQuery(
-        #     (command['body']['username'],), 'getUserbyUsername')
-        # if len(userId) == 0:
-        #     return({
-        #         'code': '401',
-        #         'message': 'Username or password is incorrect'
-        #     })
-        # password = self._db.handleQuery((userId[0][0],), 'getPassword')
-        # if password[0][0] != command['body']['password']:
-        #     return({
-        #         'code': '401',
-        #         'message': 'Username or password is incorrect'
-        #     })
-        # newSess = self._db.handleUpdate(
-        #     (str(uuid.uuid4()), userId[0][0]), 'session')
-
+        
+        userId = self._db.handleQuery(
+            (username,), 'getUserByUsername')
+        if len(userId) == 0:
+            return({
+                'code': '401',
+                'message': 'Username or password is incorrect'
+            })
+        password = self._db.handleQuery((username), 'getPassword')[0][0]
+        password = ''.join(password)
+        if password != command['body']['password']:
+            return({
+                'code': '401',
+                'message': 'Username or password is incorrect'
+            })
+        
+        self._db.handleUpdate(
+            (session, username), 'updateSession')
+        
+        player_balance = self._db.handleQuery((session,), 'getBalance')[0][0]
+        
         return {
             'code': '200',
-            'session': str(uuid.uuid4()), #newSess[0],
+            'session': session,
+            'playerBalance': player_balance,
         }
 
     def createUser(self, command):
-        print("här!!!!!")
-        if not command['body']['username'] or not command['body']['password']:
+        username = command['body']['username']
+        password = command['body']['password']
+        session = str(uuid.uuid4())
+
+        if not username or not password:
             return({'code': '400', 'message': 'Missing Parameters'})
+        print(username)
         userId = self._db.handleQuery(
-            (command['body']['username'],), 'getUserbyUsername')
+            (username,), 'getUserByUsername')
+        
         if len(userId) != 0:
             return({'code': '400', 'message': 'Username Taken'})
-        mResponse = self._db.handleMutation(
-            (command['body']['username'], str(uuid.uuid4()), command['body']['password']), 'create_user')
-        newSess = self._db.handleUpdate(
-            (str(uuid.uuid4()), mResponse[1]), 'session')
+        self._db.handleMutation(
+            [username, password, session, 100], 'createUser')
+
         return {
             'code': '200',
-            'session': newSess[0],
+            'session': session,
+            'playerBalance': 100
         }
 
     def deleteUser(self, command):
+        username = "\'"+command['body']['username']+"\'"
+
         if not command['body']['username'] or not command['session']:
             return({'code': '400', 'message': 'Missing Parameters'})
-        userId = self._db.handleQuery(
-            (command['body']['username'],), 'getUserbyUsername')
+        userId = self._db.handle_query(
+            username, 'getUserByUsername')
         if len(userId) == 0:
             return({'code': '400', 'message': 'Username Does not match any records'})
-        session = self._db.handleQuery(
-            (userId[0][0],), 'getCurrentSession')
-        if session[0][0] != command['session']:
-            return({'code': '401', 'message': 'No session established'})
-        self._db.handleMutation(
-            (userId[0][0],), 'deleteUser')
-
+        #session = self._db.handle_query(
+        #    (userId[0][0],), 'getCurrentSession')
+        #if session[0][0] != command['session']:
+        #    return({'code': '401', 'message': 'No session established'})
+        self._db.handle_deletion(
+            username, 'deleteUser')
         return {
             'code': '200',
         }
@@ -90,14 +87,17 @@ class Commands():
     def newPassword(self, command):
         if not command['body']['username'] or not command['session'] or not command['body']['newPassword']:
             return({'code': '400', 'message': 'Missing Parameters'})
-        userId = self._db.handleQuery(
-            (command['body']['username'],), 'getUserbyUsername')
+        
+        userId = self._db. handle_query(
+            (command['body']['username'],), ' getUserByUsername')
         if len(userId) == 0:
             return({'code': '400', 'message': 'Username Does not match any records'})
-        session = self._db.handleQuery(
+        
+        session = self._db. handle_query(
             (userId[0][0],), 'getCurrentSession')
         if session[0][0] != command['session']:
             return({'code': '401', 'message': 'No session established'})
+        
         self._db.handleUpdate(
             (command['body']['newPassword'], userId[0][0],), 'newPassword')
 
@@ -106,19 +106,35 @@ class Commands():
         }
 
     def blackjackCreateGame(self, command):
-        if not command['session']:
+        session = command['session']
+        bet = command['body']['playerBet']
+        if not session or not bet:
             return({'code': '400', 'message': 'Missing Parameters'})
+        
         dealerCards = []
         playerCards = []
         for i in range(0, 2):
             dealerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
         for i in range(0, 2):
             playerCards.append(self._blackjackutil.getRandomCard(dealerCards + playerCards))
-        # userId = self._db.handleQuery(
-        #     (command['session'],), 'getUserBySession')
-        #mResponse = self._db.handleMutation(
-        #    (userId, str(uuid.uuid4()), dealerCards, playerCards ), 'blackjackCreateGame')
-
+        print(session)
+        
+        user = self._db.handleQuery(
+            (session,), 'getUserBySession')[0]
+        resultState = 'false'
+        self._db.handleMutation(
+            (user[4], json.dumps(playerCards).encode(), json.dumps(dealerCards).encode(), bet), 'blackjackCreateGame')
+        
+        if self._blackjackutil.getTotal(playerCards) == 21:
+            resultState = 'BLACKJACK 21!'
+            newTotal = playerBalance + bet * 2.5
+            self._db.handleUpdate(
+                (newTotal, session,), 'updatePlayerBalance')
+            playerBalance = newTotal
+            self._db.handleDelete(
+                (session,), 'deleteGame')
+        
+        
         return {
             'code': '200',
             'gameSession': str(uuid.uuid4()),
@@ -130,40 +146,92 @@ class Commands():
                 'player': {
                     'cards': playerCards,
                     'total': self._blackjackutil.getTotal(playerCards),
-                }
+                },
+                'resultState': resultState
             }
         }
 
     def blackjackHit(self, command):
-        if not command['body']['gameSession'] and not command['session']:
+        session = command['session']
+        if not session:
             return({'code': '400', 'message': 'Missing Parameters'})
-        sessionId = command['body']['gameSession']
         #addCheck when db is up and running
-        playerCards = []
+        game = self._db.handleQuery(
+            (session,), 'fetchGame')[0]
+        playerCards = json.loads(game[2].decode('utf-8'))
         newCard = self._blackjackutil.getRandomCard(playerCards)
-        playerCards.append(newCard)
         print(newCard)
+        playerCards.append(newCard)
+        print('playerCards', playerCards)
+        playerBalance = self._db.handleQuery(
+                (session,), 'getBalance')[0][0]
+        
+        self._db.handleUpdate(
+            (json.dumps(playerCards).encode(), session,), 'updatePlayerCards')
+        
+        bust = 'false'
+        
+        if self._blackjackutil.getTotal(playerCards) > 21:
+            bust = 'PLAYER BUST'
+            bet = game[4]
+            newTotal = playerBalance - bet
+            self._db.handleUpdate(
+                (newTotal, session,), 'updatePlayerBalance')
+            playerBalance = newTotal
+            self._db.handleDelete(
+                (session,), 'deleteGame')
+
         return {
                 'code': '200',
-                'gameSession': sessionId,
+                'gameSession': session,
                 'head': 'blackjackHit',
                 'game': {
                     'player': {
-                        'newCard': newCard,
+                        'cards': playerCards,
                         'total': self._blackjackutil.getTotal(playerCards),
-                    }
+                        'playerBalance': playerBalance
+                    },
+                    'resultState': bust
                 }
             }
+
+        
     def blackjackStand(self, command):
-        if not command['body']['gameSession'] and not command['session']:
+        session = command['session']
+        if not session:
             return({'code': '400', 'message': 'Missing Parameters'}) 
-        sessionId = command['body']['gameSession']
-        #FIX hookup to db
-        dealerCards = []
-        playerCards = []
+        game = self._db.handleQuery(
+            (session,), 'fetchGame')[0]
+        playerCards = json.loads(game[2].decode('utf-8'))
+        dealerCards = json.loads(game[3].decode('utf-8'))
+        playerBalance = self._db.handleQuery(
+                (session,), 'getBalance')[0][0]
+        
+        while self._blackjackutil.getTotal(dealerCards) < 17 :
+            dealerCards.append(self._blackjackutil.getRandomCard(dealerCards))
+        playerTotal = self._blackjackutil.getTotal(playerCards)
+        dealerTotal = self._blackjackutil.getTotal(dealerCards)
+        resultState = self._blackjackutil.getWinener(dealerTotal, playerTotal)
+        
+        if resultState == 'DEALER BUST' or resultState == 'PLAYER WIN':
+            bet = game[4]
+            newTotal = playerBalance + bet * 2
+            self._db.handleUpdate(
+                (newTotal, session,), 'updatePlayerBalance')
+            playerBalance = newTotal
+        
+        elif resultState == 'DEALER WIN':
+            bet = game[4]
+            newTotal = playerBalance - bet 
+            self._db.handleUpdate(
+                (newTotal, session,), 'updatePlayerBalance')
+            playerBalance = newTotal
+        self._db.handleDelete(
+                (session,), 'deleteGame')
+
         return {
                     'code': '200',
-                    'gameSession': sessionId,
+                    'gameSession': session,
                     'head': 'blackjackStand',
                     'game': {
                         'dealer': {
@@ -173,17 +241,24 @@ class Commands():
                         'player': {
                             'cards': playerCards,
                             'total': self._blackjackutil.getTotal(playerCards),
-                        }
+                            'playerBalance': playerBalance,
+                        },
+                        'resultState': str(resultState)
                     }
                 }
     def logout(self, command):
         if not command['body']['username']:
             return({'code': '400', 'message': 'Missing Parameters'})
-        userId = self._db.handleQuery(
-            (command['body']['username'],), 'getUserbyUsername')
+        userId = self._db.handle_query(
+            (command['body']['username'],), ' getUserByUsername')
         if len(userId) == 0:
-            return({'code': '400', 'message': 'Username Does not match any records'})
-        self._db.handleUpdate(
+            return(
+                {
+                    'code': '400', 
+                    'message': 'Username Does not match any records'
+                }
+                )
+        self._db.handle_update(
             (str(uuid.uuid4()), userId[0][0]), 'session')
 
     def handleCommand(self, command):

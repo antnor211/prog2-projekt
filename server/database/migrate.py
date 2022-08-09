@@ -5,30 +5,30 @@ import os
 
 
 class Migrate(Action):
-    def __init__(self, path_database):
-        Action.__init__(self, path_database)
-        self._path_sql_file = "server/database/migrate.sql"
-        self._sql_file = None
-        self._sql_data = None
-        self._sql_query = ""
+    def __init__(self, pathDatabase):
+        Action.__init__(self, pathDatabase)
+        self._pathSqlFile = "server/database/migrate.sql"
+        self._sqlFile = None
+        self._sqlData = None
+        self._sqlQuery = ""
     
-    def _open_sql_file(self): 
-        self._sql_file = open(self._path_sql_file, "r")
-        self._sql_data = self._sql_file.readlines()
-        self._sql_file.close()
+    def _openSqlFile(self): 
+        self._sqlFile = open(self._pathSqlFile, "r")
+        self._sqlData = self._sqlFile.readlines()
+        self._sqlFile.close()
     
-    def migrate_data(self):
-        self._open_sql_file()
-        for line in self._sql_data:
+    def migrateData(self):
+        self. _openSqlFile()
+        for line in self._sqlData:
             new_line = line.replace("\n", "")
             if new_line == "":
                 continue
-            self._sql_query += new_line
-            if self._sql_query.endswith(";"):
-                exec_sql = self._sql_query.replace("    ", "")
-                print(exec_sql)
-                self._cur.execute(exec_sql)
-                self._sql_query = ""
+            self._sqlQuery += new_line
+            if self._sqlQuery.endswith(";"):
+                execSql = self._sqlQuery.replace("    ", "")
+                print(execSql)
+                self._cur.execute(execSql)
+                self._sqlQuery = ""
                 print("END of quary line")
             else:
                 continue
